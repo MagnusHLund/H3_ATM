@@ -1,12 +1,20 @@
+using Moq;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces;
 using HæveautomatenTests.Factories;
-
 
 namespace HæveautomatenTests.Tests
 {
     [TestClass]
-    public class CreditCardTests
+    public class CreditCardControllerTests
     {
+        private Mock<ICreditCardController> _creditCardController;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _creditCardController = new Mock<ICreditCardController>();
+        }
 
         [TestMethod]
         public void IsCreditCardValid_WithValidCard_ReturnsTrue()
@@ -15,8 +23,10 @@ namespace HæveautomatenTests.Tests
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
 
             // Act
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
 
             // Assert
+            Assert.IsTrue(isCreditCardValid);
         }
 
         [TestMethod]
@@ -28,9 +38,10 @@ namespace HæveautomatenTests.Tests
             );
 
             // Act
-
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
 
             // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
 
         [TestMethod]
@@ -42,29 +53,34 @@ namespace HæveautomatenTests.Tests
             );
 
             // Act
-
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
 
             // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
 
         [TestMethod]
-        public void IsCreditCardValid_WithExpiredCreditCard_ReturnsFalse()
+        public void IsCreditCardValid_WithExpiredCard_ReturnsFalse()
         {
+
         }
 
         [TestMethod]
         public void IsCreditCardValid_WithInvalidCvv_ReturnsFalse()
         {
+
         }
 
         [TestMethod]
-        public void IsCreditCardValid_WithIncorrectPin_ReturnsFalse()
+        public void IsCreditCardValid_WithInvalidPin_ReturnsFalse()
         {
+
         }
 
         [TestMethod]
         public void IsCreditCardValid_WithAccountNotFound_ReturnsFalse()
         {
+
         }
     }
 }

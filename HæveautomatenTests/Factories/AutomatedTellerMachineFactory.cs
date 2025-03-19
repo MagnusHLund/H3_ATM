@@ -1,16 +1,19 @@
-using Hæveautomaten.Models;
+using Hæveautomaten.Entities;
 
-namespace Hæveautomaten.Factories
+namespace HæveautomatenTests.Factories
 {
     internal static class AutomatedTellerMachineFactory
     {
-        internal static AutomatedTellerMachine CreateAutomatedTellerMachine(Bank associatedBank)
+        internal static AutomatedTellerMachineEntity CreateAutomatedTellerMachine(
+            BankEntity associatedBank = null,
+            uint minimumExchangeAmount = 5
+        )
         {
-            uint minimumExchangeAmount = 5;
+            associatedBank ??= BankFactory.CreateBank();
 
-            AutomatedTellerMachine atm = new AutomatedTellerMachine(minimumExchangeAmount);
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(minimumExchangeAmount);
 
-            associatedBank.AddAutomatedTellerMachine(atm);
+            associatedBank.AutomatedTellerMachines.Add(atm);
 
             return atm;
         }

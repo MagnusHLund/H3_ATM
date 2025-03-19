@@ -1,8 +1,7 @@
-using Hæveautomaten.Factories;
-using Hæveautomaten.Models;
+using Hæveautomaten.Entities;
 using HæveautomatenTests.Factories;
 
-namespace Hæveautomaten.Tests
+namespace HæveautomatenTests.Tests
 {
     [TestClass]
     public class AtmDepositMoneyTests
@@ -17,26 +16,26 @@ namespace Hæveautomaten.Tests
         public void DepositMoney_WithValidParameters_ReturnsUpdatedAccountBalance()
         {
             // Assert
-            Bank bank = BankFactory.CreateBank();
-            Person person = PersonFactory.CreatePerson();
-            Account account = AccountFactory.CreateAccount(person, bank);
-            AutomatedTellerMachine atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank);
+            BankEntity bank = BankFactory.CreateBank();
+            PersonEntity person = PersonFactory.CreatePerson();
+            AccountEntity account = AccountFactory.CreateAccount(person, bank);
+            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank);
 
             // Act
             atm.DepositMoney(account, 100);
 
             // Assert
-            Assert.AreEqual(1100, account.Balance);
+            Assert.AreEqual(1100, account.BalanceInMinorUnits);
         }
 
         [TestMethod]
         public void DepositMoney_WithLessThanMinimumExchangeAmount_ThrowsInvalidOperationException()
         {
             // Assert
-            Bank bank = BankFactory.CreateBank();
-            Person person = PersonFactory.CreatePerson();
-            Account account = AccountFactory.CreateAccount(person, bank);
-            AutomatedTellerMachine atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank);
+            BankEntity bank = BankFactory.CreateBank();
+            PersonEntity person = PersonFactory.CreatePerson();
+            AccountEntity account = AccountFactory.CreateAccount(person, bank);
+            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank);
 
             // Act & Assert
             Assert.ThrowsException<InvalidOperationException>(() => atm.DepositMoney(account, 4));

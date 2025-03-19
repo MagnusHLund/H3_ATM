@@ -1,22 +1,30 @@
-using Hæveautomaten.Models;
+using Hæveautomaten.Entities;
 
-namespace Hæveautomaten.Factories
+namespace HæveautomatenTests.Factories
 {
     internal static class AccountFactory
     {
-        internal static Account CreateAccount(Person accountOwner, Bank associatedBank)
+        internal static AccountEntity CreateAccount(
+            PersonEntity accountOwner = null,
+            BankEntity associatedBank = null,
+            uint accountId = 1234567890,
+            long balanceInMinorUnits = 1000
+        )
         {
-            string accountOwnerFullName = accountOwner.GetFullName();
-            uint accountNumber = 1234567890;
-            decimal balance = 1000;
+            accountOwner ??= PersonFactory.CreatePerson();
+            associatedBank ??= BankFactory.CreateBank();
 
-            Account account = new Account(
+            string accountOwnerFullName = accountOwner.GetFullName();
+
+            AccountEntity account = new AccountEntity
+            (
+                accountId: accountId,
                 accountOwnerName: accountOwnerFullName,
-                accountNumber: accountNumber,
-                balance: balance
+                balanceInMinorUnits: balanceInMinorUnits,
+                bank: associatedBank
             );
 
-            associatedBank.AddAccount(account);
+            associatedBank.Accounts.Add(account);
 
             return account;
         }

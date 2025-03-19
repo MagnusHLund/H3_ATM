@@ -1,40 +1,35 @@
-using Hæveautomaten.Models;
+using Hæveautomaten.Entities;
 
-namespace Hæveautomaten.Factories
+namespace HæveautomatenTests.Factories
 {
     internal static class CreditCardFactory
     {
-        internal static CreditCard CreateValidCreditCard(Person cardHolder, Account associatedAccount)
+        internal static CreditCardEntity CreateCreditCard(
+            PersonEntity cardHolder = null,
+            AccountEntity associatedAccount = null,
+            ulong cardNumber = 1234123412341234,
+            DateTime? expirationDate = null,
+            ushort cvv = 123,
+            ushort pinCode = 1234,
+            bool isBlocked = false
+        )
         {
-            string fullCardHolderName = cardHolder.GetFullName();
-            ulong cardNumber = 1234123412341234;
-            ushort cvv = 123;
-            DateTime expirationDate = DateTime.Now.AddYears(3);
-            ushort pinCode = 1234;
-            bool isBlocked = false;
-            ulong associatedAccountNumber = associatedAccount.AccountNumber;
+            cardHolder ??= PersonFactory.CreatePerson();
+            associatedAccount ??= AccountFactory.CreateAccount(cardHolder, BankFactory.CreateBank());
+            expirationDate ??= DateTime.Now.AddYears(3);
 
-            CreditCard creditCard = new CreditCard
-            (
-                cardHolderName: fullCardHolderName,
+            CreditCardEntity creditCard = new CreditCardEntity(
+                cardHolderName: cardHolder.GetFullName(),
                 cardNumber: cardNumber,
                 cvv: cvv,
-                expirationDate: expirationDate,
+                expirationDate: expirationDate.Value,
                 pinCode: pinCode,
                 isBlocked: isBlocked,
-                associatedAccountNumber: associatedAccountNumber
+                account: associatedAccount
             );
 
-            cardHolder.AddCreditCard(creditCard);
-            associatedAccount.AddCreditCard(creditCard);
-
-            return creditCard;
-        }
-
-        internal static CreditCard CreateBlockedCreditCard(Person cardHolder, Account associatedAccount)
-        {
-            CreditCard creditCard = CreateValidCreditCard(cardHolder, associatedAccount);
-            creditCard.IsBlocked = true;
+            cardHolder.CreditCards.Add(creditCard);
+            associatedAccount.CreditCards.Add(creditCard);
 
             return creditCard;
         }

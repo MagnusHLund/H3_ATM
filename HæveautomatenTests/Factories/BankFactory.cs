@@ -1,17 +1,13 @@
-using Hæveautomaten.Models;
+using Hæveautomaten.Entities;
 
 namespace HæveautomatenTests.Factories
 {
     internal static class BankFactory
     {
-        internal static Bank CreateBank()
+        internal static BankEntity CreateBank(string bankName = "Bank of Bankington")
         {
-            string bankName = "Bank of Bankington";
-            Address address = AddressFactory.CreateAddress();
-
-            return new Bank(
-                bankName: bankName,
-                bankAddress: address
+            return new BankEntity(
+                bankName: bankName
             );
         }
     }
