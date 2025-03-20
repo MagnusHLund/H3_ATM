@@ -1,25 +1,22 @@
-using Hæveautomaten.Interfaces;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
     public class AccountController : IAccountController
     {
-        public void CreateAccount()
+        public bool CreateAccount(AccountEntity account)
         {
-            // Create a new account
+            // Create account and save it in the database
 
-            // First pick a bank
-            // Then pick a person
-            // Then create the account which connects the bank and the person.
-
-            // Create bank and save it in the database
+            throw new NotImplementedException();
         }
 
-        public void DeleteAccount()
+        public bool DeleteAccount(AccountEntity account)
         {
-            // Get all accounts and store them in a variable
-            // Select an account from the list and delete it
+            // Delete the account from the database
+
+            throw new NotImplementedException();
         }
 
         public List<AccountEntity> GetAllAccounts()

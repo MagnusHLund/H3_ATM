@@ -1,5 +1,5 @@
 using Hæveautomaten.Entities;
-using Hæveautomaten.Interfaces;
+using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
@@ -16,20 +16,18 @@ namespace Hæveautomaten.Controllers
             // If user input is 0, return to main menu
         }
 
-        public void CreateAutomatedTellerMachine()
+        public bool CreateAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
         {
-            // Create a new automated teller machine
-
-            // First pick a bank, which owns the machine.
-            // Then decide the minimum exchange amount.
-
             // Create the automated teller machine and save it in the database
+
+            throw new NotImplementedException();
         }
 
-        public void DeleteAutomatedTellerMachine()
+        public bool DeleteAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
         {
-            // Get all automated teller machines and store them in a variable
-            // Select an automated teller machine from the list and delete it
+            // Delete the automated teller machine from the database
+
+            throw new NotImplementedException();
         }
 
         public void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm)

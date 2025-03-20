@@ -18,7 +18,7 @@ namespace HæveautomatenTests.Factories
             associatedAccount ??= AccountFactory.CreateAccount(cardHolder, BankFactory.CreateBank());
             expirationDate ??= DateTime.Now.AddYears(3);
 
-            CreditCardEntity creditCard = new CreditCardEntity(
+            return new CreditCardEntity(
                 cardHolderName: cardHolder.GetFullName(),
                 cardNumber: cardNumber,
                 cvv: cvv,
@@ -27,11 +27,6 @@ namespace HæveautomatenTests.Factories
                 isBlocked: isBlocked,
                 account: associatedAccount
             );
-
-            cardHolder.CreditCards.Add(creditCard);
-            associatedAccount.CreditCards.Add(creditCard);
-
-            return creditCard;
         }
     }
 }

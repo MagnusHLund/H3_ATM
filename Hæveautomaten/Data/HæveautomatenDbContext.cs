@@ -29,6 +29,12 @@ namespace Hæveautomaten.Data
                 .HasForeignKey("AccountNumber")
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<AccountEntity>()
+                .HasOne(a => a.AccountOwner)
+                .WithMany(p => p.Accounts)
+                .HasForeignKey("PersonId")
+                .OnDelete(DeleteBehavior.Restrict);
+
             // CreditCardEntity Configuration
             modelBuilder.Entity<CreditCardEntity>()
                 .HasKey(c => c.CardNumber);
@@ -44,7 +50,7 @@ namespace Hæveautomaten.Data
                 .HasKey(p => p.PersonId);
 
             modelBuilder.Entity<PersonEntity>()
-                .HasMany(p => p.CreditCards)
+                .HasMany(p => p.Accounts)
                 .WithOne()
                 .HasForeignKey("CardHolderName")
                 .OnDelete(DeleteBehavior.Restrict);

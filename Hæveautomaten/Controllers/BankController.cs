@@ -1,24 +1,29 @@
-using Hæveautomaten.Interfaces;
+using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
     public class BankController : IBankController
     {
-        public void CreateBank()
+        public bool CreateBank(BankEntity bank)
         {
-            // Create a new bank. Input bank name.
             // Create bank and save it in the database
+
+            throw new NotImplementedException();
         }
 
-        public void DeleteBank()
+        public bool DeleteBank(BankEntity bank)
         {
-            // Get all banks and store them in a variable
-            // Select a bank from the list and delete it
+            // Delete the bank from the database
+
+            throw new NotImplementedException();
         }
 
-        public void GetAllBanks()
+        public List<BankEntity> GetAllBanks()
         {
             // Get all banks and return them
+
+            throw new NotImplementedException();
         }
     }
 }

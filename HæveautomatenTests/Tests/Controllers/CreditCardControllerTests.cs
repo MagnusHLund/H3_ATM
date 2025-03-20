@@ -1,9 +1,9 @@
 using Moq;
 using Hæveautomaten.Entities;
-using Hæveautomaten.Interfaces;
 using HæveautomatenTests.Factories;
+using Hæveautomaten.Interfaces.Controllers;
 
-namespace HæveautomatenTests.Tests
+namespace HæveautomatenTests.Tests.Controllers
 {
     [TestClass]
     public class CreditCardControllerTests
@@ -62,25 +62,61 @@ namespace HæveautomatenTests.Tests
         [TestMethod]
         public void IsCreditCardValid_WithExpiredCard_ReturnsFalse()
         {
+            // Arrange
+            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
+                expirationDate: DateTime.Now.AddYears(-1)
+            );
 
+            // Act
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
+
+            // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
 
         [TestMethod]
         public void IsCreditCardValid_WithInvalidCvv_ReturnsFalse()
         {
+            // Arrange
+            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
+                cvv: 1234
+            );
 
+            // Act
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
+
+            // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
 
         [TestMethod]
-        public void IsCreditCardValid_WithInvalidPin_ReturnsFalse()
+        public void IsCreditCardValid_WithInvalidPinCode_ReturnsFalse()
         {
+            // Arrange
+            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
+                pinCode: 12345
+            );
 
+            // Act
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
+
+            // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
 
         [TestMethod]
         public void IsCreditCardValid_WithAccountNotFound_ReturnsFalse()
         {
+            // Arrange
+            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
+                associatedAccount: null
+            );
 
+            // Act
+            bool isCreditCardValid = _creditCardController.Object.IsCreditCardValid(creditCard);
+
+            // Assert
+            Assert.IsFalse(isCreditCardValid);
         }
     }
 }

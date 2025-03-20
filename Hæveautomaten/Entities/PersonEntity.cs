@@ -16,7 +16,7 @@ namespace Hæveautomaten.Entities
         public string LastName { get; set; }
 
         // Navigation property 
-        public List<CreditCardEntity> CreditCards { get; set; } = new List<CreditCardEntity>();
+        public List<AccountEntity> Accounts { get; set; } = new List<AccountEntity>();
 
         public PersonEntity(string firstName, string lastName, string? middleName = null)
         {

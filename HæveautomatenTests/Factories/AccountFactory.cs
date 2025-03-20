@@ -7,19 +7,15 @@ namespace HæveautomatenTests.Factories
         internal static AccountEntity CreateAccount(
             PersonEntity accountOwner = null,
             BankEntity associatedBank = null,
-            uint accountId = 1234567890,
             long balanceInMinorUnits = 1000
         )
         {
             accountOwner ??= PersonFactory.CreatePerson();
             associatedBank ??= BankFactory.CreateBank();
 
-            string accountOwnerFullName = accountOwner.GetFullName();
-
             AccountEntity account = new AccountEntity
             (
-                accountId: accountId,
-                accountOwnerName: accountOwnerFullName,
+                accountOwner: accountOwner,
                 balanceInMinorUnits: balanceInMinorUnits,
                 bank: associatedBank
             );
@@ -27,6 +23,23 @@ namespace HæveautomatenTests.Factories
             associatedBank.Accounts.Add(account);
 
             return account;
+        }
+
+        internal static List<AccountEntity> CreateAccounts(
+            int numberOfAccounts = 3,
+            PersonEntity accountOwner = null,
+            BankEntity associatedBank = null,
+            long balanceInMinorUnits = 1000
+        )
+        {
+            List<AccountEntity> accounts = new List<AccountEntity>();
+
+            for (int i = 0; i < numberOfAccounts; i++)
+            {
+                accounts.Add(CreateAccount(accountOwner, associatedBank, balanceInMinorUnits));
+            }
+
+            return accounts;
         }
     }
 }

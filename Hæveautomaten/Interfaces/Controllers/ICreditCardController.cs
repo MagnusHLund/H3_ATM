@@ -1,11 +1,11 @@
 using Hæveautomaten.Entities;
 
-namespace Hæveautomaten.Interfaces
+namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface ICreditCardController
     {
-        void CreateCreditCard();
-        void DeleteCreditCard();
+        bool CreateCreditCard(CreditCardEntity creditCard);
+        bool DeleteCreditCard(CreditCardEntity creditCard);
         List<CreditCardEntity> GetAllCreditCards();
         bool IsCreditCardValid(CreditCardEntity creditCard);
     }

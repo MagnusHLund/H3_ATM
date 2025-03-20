@@ -1,7 +1,7 @@
 ﻿using Hæveautomaten.Data;
-using Hæveautomaten.Interfaces;
 using Hæveautomaten.Controllers;
 using Microsoft.EntityFrameworkCore;
+using Hæveautomaten.Interfaces.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hæveautomaten
@@ -15,7 +15,7 @@ namespace Hæveautomaten
             using (IServiceScope scope = serviceProvider.CreateScope())
             {
                 IMainController myService = scope.ServiceProvider.GetRequiredService<IMainController>();
-                myService.HandleMainMenu();
+                myService.HandleMainMenuDisplay();
             }
         }
 

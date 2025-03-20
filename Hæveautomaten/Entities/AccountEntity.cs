@@ -7,9 +7,6 @@ namespace Hæveautomaten.Entities
         [Key]
         public uint AccountId { get; set; }
 
-        [Required]
-        public string AccountOwnerName { get; set; }
-
         public long BalanceInMinorUnits { get; set; } = 0;
 
         // Navigation property
@@ -18,13 +15,15 @@ namespace Hæveautomaten.Entities
         // Navigation property
         public BankEntity Bank { get; set; }
 
-        public AccountEntity(uint accountId, string accountOwnerName, long balanceInMinorUnits = 0, BankEntity bank = null, List<CreditCardEntity> creditCards = null)
+        // Navigation property
+        public PersonEntity AccountOwner { get; set; }
+
+        public AccountEntity(long balanceInMinorUnits = 0, BankEntity bank = null, PersonEntity accountOwner = null, List<CreditCardEntity> creditCards = null)
         {
-            AccountId = accountId;
-            AccountOwnerName = accountOwnerName;
             BalanceInMinorUnits = balanceInMinorUnits;
             Bank = bank;
             CreditCards = creditCards ?? new List<CreditCardEntity>();
+            AccountOwner = accountOwner;
         }
     }
 }

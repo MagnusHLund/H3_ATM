@@ -1,23 +1,26 @@
-using Hæveautomaten.Interfaces;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
     public class CreditCardController : ICreditCardController
     {
-        public void CreateCreditCard()
+        public bool CreateCreditCard(CreditCardEntity creditCard)
         {
             // Create a new credit card
 
             // First pick a person, that owns the credit card
             // Get the values of the credit card number, expiration date, and cvv, 
             // Expiration date, pin code, isBlocked, associatedAccountNumber
+
+            throw new NotImplementedException();
         }
 
-        public void DeleteCreditCard()
+        public bool DeleteCreditCard(CreditCardEntity creditCard)
         {
-            // Get all credit cards and store them in a variable
-            // Select an credit cards from the list and delete it
+            // Delete the credit card from the database
+
+            throw new NotImplementedException();
         }
 
         public List<CreditCardEntity> GetAllCreditCards()

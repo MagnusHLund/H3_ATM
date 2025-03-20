@@ -1,12 +1,12 @@
 using Hæveautomaten.Entities;
 
-namespace Hæveautomaten.Interfaces
+namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface IAutomatedTellerMachineController
     {
         void HandleAutomatedTellerMachineMenu();
-        void CreateAutomatedTellerMachine();
-        void DeleteAutomatedTellerMachine();
+        bool CreateAutomatedTellerMachine(AutomatedTellerMachineEntity atm);
+        bool DeleteAutomatedTellerMachine(AutomatedTellerMachineEntity atm);
         void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm);
         AutomatedTellerMachineEntity SwitchAutomatedTellerMachine(List<AutomatedTellerMachineEntity> atms);
         List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines();

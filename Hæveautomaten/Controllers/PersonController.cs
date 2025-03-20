@@ -1,19 +1,22 @@
 using Hæveautomaten.Entities;
-using Hæveautomaten.Interfaces;
+using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
     public class PersonController : IPersonController
     {
-        public void CreatePerson()
+        public bool CreatePerson(PersonEntity person)
         {
             // Create a new person
+
+            throw new NotImplementedException();
         }
 
-        public void DeletePerson()
+        public bool DeletePerson(PersonEntity person)
         {
-            // Get all people and store them in a variable
-            // Select a person from the list and delete it
+            // Delete the person from the database
+
+            throw new NotImplementedException();
         }
 
         public List<PersonEntity> GetAllPeople()
