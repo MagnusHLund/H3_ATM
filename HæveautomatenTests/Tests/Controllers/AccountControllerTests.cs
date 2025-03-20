@@ -1,5 +1,6 @@
 using Moq;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
@@ -9,78 +10,70 @@ namespace HæveautomatenTests.Tests.Controllers
     [TestClass]
     public class AccountControllerTests
     {
-        private Mock<IAccountController> _mockAccountController;
         private Mock<IAccountRepository> _mockAccountRepository;
+        private Mock<IBankController> _mockBankController;
+        private Mock<IPersonController> _mockPersonController;
+        private AccountController _accountController;
 
         [TestInitialize]
         public void Setup()
         {
-            _mockAccountController = new Mock<IAccountController>();
             _mockAccountRepository = new Mock<IAccountRepository>();
+            _mockBankController = new Mock<IBankController>();
+            _mockPersonController = new Mock<IPersonController>();
+
+            _accountController = new AccountController(
+                _mockAccountRepository.Object,
+                _mockBankController.Object,
+                _mockPersonController.Object
+            );
         }
 
         [TestMethod]
         public void CreateAccount_WithValidData_CreatesSuccessfully()
         {
             // Arrange
-            AccountEntity account = AccountFactory.CreateAccount();
-            _mockAccountRepository.Setup(x => x.CreateAccount(account)).Returns(true);
+            long balance = 10000;
+            BankEntity bank = BankFactory.CreateBank();
+            PersonEntity person = PersonFactory.CreatePerson();
+            AccountEntity account = AccountFactory.CreateAccount(person, bank, balanceInMinorUnits: balance);
+
+            _mockBankController.Setup(b => b.SelectBank()).Returns(bank);
+            _mockPersonController.Setup(p => p.SelectPerson()).Returns(person);
+            _mockAccountRepository.Setup(r => r.CreateAccount(It.IsAny<AccountEntity>())).Returns(true);
 
             // Act
-            bool successfullyCreated = _mockAccountController.Object.CreateAccount(account);
+            bool result = _accountController.CreateAccount();
 
             // Assert
-            Assert.IsTrue(successfullyCreated);
+            Assert.IsTrue(result);
+            _mockAccountRepository.Verify(r => r.CreateAccount(It.Is<AccountEntity>(a =>
+                a.BalanceInMinorUnits == balance &&
+                a.Bank == bank &&
+                a.AccountOwner == person
+            )), Times.Once);
         }
 
         [TestMethod]
         public void CreateAccount_WithoutBank_ThrowsArgumentNullException()
         {
             // Arrange
-            AccountEntity account = AccountFactory.CreateAccount(
-                associatedBank: null
-            );
+            _mockBankController.Setup(b => b.SelectBank()).Returns((BankEntity)null);
 
-            _mockAccountRepository.Setup(x => x.CreateAccount(account)).Returns(true);
-
-            // Act & assert
-            Assert.ThrowsException<ArgumentNullException>(() => _mockAccountController.Object.CreateAccount(account));
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => _accountController.CreateAccount());
         }
 
         [TestMethod]
         public void CreateAccount_WithoutOwner_ThrowsArgumentNullException()
         {
             // Arrange
-            AccountEntity account = AccountFactory.CreateAccount(
-                accountOwner: null
-            );
+            BankEntity bank = BankFactory.CreateBank();
+            _mockBankController.Setup(b => b.SelectBank()).Returns(bank);
+            _mockPersonController.Setup(p => p.SelectPerson()).Returns((PersonEntity)null);
 
-            // Act & assert
-            Assert.ThrowsException<ArgumentNullException>(() => _mockAccountController.Object.CreateAccount(account));
-        }
-
-        [TestMethod]
-        public void CreateAccount_WithNotFoundBank_ThrowsInvalidOperationException()
-        {
-            // Arrange
-            AccountEntity account = AccountFactory.CreateAccount(
-                associatedBank: null
-            );
-
-            // Act & assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _mockAccountController.Object.CreateAccount(account));
-        }
-
-        [TestMethod]
-        public void CreateAccount_WithOwnerNotFound_ThrowsInvalidOperationException()
-        {
-            // Arrange
-            AccountEntity account = AccountFactory.CreateAccount(
-                accountOwner: null
-            );
-
-            // Act & assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _mockAccountController.Object.CreateAccount(account));
+            // Act & Assert
+            Assert.ThrowsException<ArgumentNullException>(() => _accountController.CreateAccount());
         }
 
         [TestMethod]
@@ -88,13 +81,15 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             AccountEntity account = AccountFactory.CreateAccount();
-            _mockAccountRepository.Setup(x => x.DeleteAccount(account.AccountId)).Returns(true);
+            _mockAccountRepository.Setup(r => r.DeleteAccount(account.AccountId)).Returns(true);
+            _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(new List<AccountEntity> { account });
 
             // Act
-            bool successfullyDeleted = _mockAccountController.Object.DeleteAccount(account);
+            bool result = _accountController.DeleteAccount();
 
             // Assert
-            Assert.IsTrue(successfullyDeleted);
+            Assert.IsTrue(result);
+            _mockAccountRepository.Verify(r => r.DeleteAccount(account.AccountId), Times.Once);
         }
 
         [TestMethod]
@@ -102,10 +97,11 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             AccountEntity account = AccountFactory.CreateAccount();
-            _mockAccountRepository.Setup(x => x.DeleteAccount(account.AccountId)).Returns(false);
+            _mockAccountRepository.Setup(r => r.DeleteAccount(account.AccountId)).Returns(false);
+            _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(new List<AccountEntity> { account });
 
-            // Act & assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _mockAccountController.Object.DeleteAccount(account));
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => _accountController.DeleteAccount());
         }
 
         [TestMethod]
@@ -113,13 +109,14 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             List<AccountEntity> accounts = AccountFactory.CreateAccounts();
-            _mockAccountController.Setup(x => x.GetAllAccounts()).Returns(accounts);
+            _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(accounts);
 
             // Act
-            List<AccountEntity> allAccounts = _mockAccountController.Object.GetAllAccounts();
+            List<AccountEntity> result = _accountController.GetAllAccounts();
 
             // Assert
-            Assert.AreEqual(accounts, allAccounts);
+            Assert.AreEqual(accounts.Count, result.Count);
+            CollectionAssert.AreEqual(accounts, result);
         }
 
         [TestMethod]
@@ -127,13 +124,14 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             List<AccountEntity> accounts = new List<AccountEntity>();
-            _mockAccountController.Setup(x => x.GetAllAccounts()).Returns(accounts);
+            _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(accounts);
 
             // Act
-            List<AccountEntity> allAccounts = _mockAccountController.Object.GetAllAccounts();
+            List<AccountEntity> result = _accountController.GetAllAccounts();
 
             // Assert
-            Assert.AreEqual(accounts, allAccounts);
+            Assert.AreEqual(0, result.Count);
+            CollectionAssert.AreEqual(accounts, result);
         }
     }
 }

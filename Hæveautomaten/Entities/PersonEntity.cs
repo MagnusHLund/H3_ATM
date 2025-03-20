@@ -25,7 +25,9 @@ namespace Hæveautomaten.Entities
             LastName = lastName;
         }
 
-        public string GetFullName()
+        private PersonEntity() { }
+
+        public override string ToString()
         {
             return MiddleName == null
                 ? $"{FirstName} {LastName}"

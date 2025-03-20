@@ -4,8 +4,9 @@ namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface ICreditCardController
     {
-        bool CreateCreditCard(CreditCardEntity creditCard);
-        bool DeleteCreditCard(CreditCardEntity creditCard);
+        bool CreateCreditCard();
+        bool DeleteCreditCard();
+        CreditCardEntity SelectCreditCard();
         List<CreditCardEntity> GetAllCreditCards();
         bool IsCreditCardValid(CreditCardEntity creditCard);
     }

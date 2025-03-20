@@ -6,5 +6,6 @@ namespace Hæveautomaten.Interfaces.Repositories
     {
         bool CreatePerson(PersonEntity person);
         bool DeletePerson(uint personId);
+        List<PersonEntity> GetAllPeople();
     }
 }

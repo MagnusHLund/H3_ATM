@@ -6,5 +6,7 @@ namespace Hæveautomaten.Interfaces.Repositories
     {
         bool CreateAccount(AccountEntity account);
         bool DeleteAccount(uint accountId);
+        List<AccountEntity> GetAccountsByPerson(uint personId);
+        List<AccountEntity> GetAllAccounts();
     }
 }

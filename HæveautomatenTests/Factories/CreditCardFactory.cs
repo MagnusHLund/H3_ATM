@@ -19,7 +19,7 @@ namespace HæveautomatenTests.Factories
             expirationDate ??= DateTime.Now.AddYears(3);
 
             return new CreditCardEntity(
-                cardHolderName: cardHolder.GetFullName(),
+                cardHolderName: cardHolder.ToString(),
                 cardNumber: cardNumber,
                 cvv: cvv,
                 expirationDate: expirationDate.Value,

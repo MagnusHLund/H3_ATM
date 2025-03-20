@@ -19,13 +19,13 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             string input = "1";
-            _mainControllerMock.Setup(main => main.HandleMainMenu(input));
+            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
 
             // Act
-            _mainControllerMock.Object.HandleMainMenu(input);
+            _mainControllerMock.Object.HandleMainMenuInput(input);
 
             // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenu(input), Times.Once);
+            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
         }
 
         [TestMethod]
@@ -33,13 +33,13 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             string input = "invalid";
-            _mainControllerMock.Setup(main => main.HandleMainMenu(input));
+            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
 
             // Act
-            _mainControllerMock.Object.HandleMainMenu(input);
+            _mainControllerMock.Object.HandleMainMenuInput(input);
 
             // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenu(input), Times.Once);
+            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
         }
 
         [TestMethod]
@@ -47,13 +47,13 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             string input = "0";
-            _mainControllerMock.Setup(main => main.HandleMainMenu(input));
+            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
 
             // Act
-            _mainControllerMock.Object.HandleMainMenu(input);
+            _mainControllerMock.Object.HandleMainMenuInput(input);
 
             // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenu(input), Times.Once);
+            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
         }
     }
 }

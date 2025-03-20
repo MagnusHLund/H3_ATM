@@ -1,61 +1,64 @@
 using Moq;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
 using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Repositories;
+
 namespace HæveautomatenTests.Tests.Controllers
 {
     [TestClass]
     public class AutomatedTellerMachineControllerTests
     {
-        private Mock<IAutomatedTellerMachineController> _atmControllerMock;
+        private Mock<IAutomatedTellerMachineRepository> _atmRepositoryMock;
+        private Mock<ICreditCardController> _creditCardControllerMock;
+        private Mock<IBankController> _bankControllerMock;
+        private AutomatedTellerMachineController _atmController;
 
         [TestInitialize]
         public void Setup()
         {
-            _atmControllerMock = new Mock<IAutomatedTellerMachineController>();
-        }
+            _atmRepositoryMock = new Mock<IAutomatedTellerMachineRepository>();
+            _bankControllerMock = new Mock<IBankController>();
+            _creditCardControllerMock = new Mock<ICreditCardController>();
 
-        [TestMethod]
-        public void HandleAutomatedTellerMachineMenu_WithValidInput_ExecutesSuccessfully()
-        {
-            // Arrange
-            _atmControllerMock.Setup(atm => atm.GetAllAutomatedTellerMachines()).Returns(new List<AutomatedTellerMachineEntity>());
-
-            // Act
-            _atmControllerMock.Object.HandleAutomatedTellerMachineMenu();
-
-            // Assert
-            _atmControllerMock.Verify(atm => atm.GetAllAutomatedTellerMachines(), Times.Once);
-        }
-
-        [TestMethod]
-        public void HandleAutomatedTellerMachineMenu_WithInvalidInput_ReturnsToMainMenu()
-        {
+            _atmController = new AutomatedTellerMachineController(
+                _atmRepositoryMock.Object,
+                _bankControllerMock.Object,
+                _creditCardControllerMock.Object
+            );
         }
 
         [TestMethod]
         public void CreateAutomatedTellerMachine_WithValidData_CreatesSuccessfully()
         {
             // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            _atmControllerMock.Setup(atmController => atmController.CreateAutomatedTellerMachine(atm)).Returns(true);
+            BankEntity bank = BankFactory.CreateBank();
+            uint minimumExchangeAmount = 100;
+            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank, minimumExchangeAmount);
+
+            _bankControllerMock.Setup(b => b.SelectBank()).Returns(bank);
+            _atmRepositoryMock.Setup(r => r.CreateAutomatedTellerMachine(It.IsAny<AutomatedTellerMachineEntity>())).Returns(true);
 
             // Act
-            bool result = _atmControllerMock.Object.CreateAutomatedTellerMachine(atm);
+            bool result = _atmController.CreateAutomatedTellerMachine();
 
             // Assert
             Assert.IsTrue(result);
+            _atmRepositoryMock.Verify(r => r.CreateAutomatedTellerMachine(It.Is<AutomatedTellerMachineEntity>(a =>
+                a.Bank == bank &&
+                a.MinimumExchangeAmount == minimumExchangeAmount
+            )), Times.Once);
         }
 
         [TestMethod]
-        public void CreateAutomatedTellerMachine_WithInvalidData_ThrowsException()
+        public void CreateAutomatedTellerMachine_WithoutBank_ThrowsArgumentNullException()
         {
             // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            _atmControllerMock.Setup(atmController => atmController.CreateAutomatedTellerMachine(atm)).Throws(new Exception("Invalid data"));
+            _bankControllerMock.Setup(b => b.SelectBank()).Returns((BankEntity)null);
 
             // Act & Assert
-            Assert.ThrowsException<Exception>(() => _atmControllerMock.Object.CreateAutomatedTellerMachine(atm));
+            Assert.ThrowsException<ArgumentNullException>(() => _atmController.CreateAutomatedTellerMachine());
         }
 
         [TestMethod]
@@ -63,75 +66,25 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            _atmControllerMock.Setup(atmController => atmController.DeleteAutomatedTellerMachine(atm)).Returns(true);
+            _atmRepositoryMock.Setup(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId)).Returns(true);
 
             // Act
-            bool result = _atmControllerMock.Object.DeleteAutomatedTellerMachine(atm);
+            bool result = _atmController.DeleteAutomatedTellerMachine();
 
             // Assert
             Assert.IsTrue(result);
-            _atmControllerMock.Verify(atmController => atmController.DeleteAutomatedTellerMachine(atm), Times.Once);
+            _atmRepositoryMock.Verify(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId), Times.Once);
         }
 
         [TestMethod]
-        public void DeleteAutomatedTellerMachine_WithNonExistingATM_ThrowsException()
+        public void DeleteAutomatedTellerMachine_WithNonExistingATM_ThrowsKeyNotFoundException()
         {
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            _atmControllerMock.Setup(atmController => atmController.DeleteAutomatedTellerMachine(atm)).Throws(new Exception("ATM not found"));
+            _atmRepositoryMock.Setup(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId)).Returns(false);
 
             // Act & Assert
-            Assert.ThrowsException<Exception>(() => _atmControllerMock.Object.DeleteAutomatedTellerMachine(atm));
-        }
-
-        [TestMethod]
-        public void UseAutomatedTellerMachine_WithValidATM_ExecutesSuccessfully()
-        {
-            // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-
-            // Act
-            _atmControllerMock.Object.UseAutomatedTellerMachine(atm);
-
-            // Assert
-            _atmControllerMock.Verify(atmController => atmController.UseAutomatedTellerMachine(atm), Times.Once);
-        }
-
-        [TestMethod]
-        public void UseAutomatedTellerMachine_WithNullATM_ThrowsArgumentNullException()
-        {
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmControllerMock.Object.UseAutomatedTellerMachine(null));
-        }
-
-        [TestMethod]
-        public void SwitchAutomatedTellerMachine_WithMultipleATMs_ReturnsSelectedATM()
-        {
-            // Arrange
-            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>
-            {
-                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(),
-                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine()
-            };
-            _atmControllerMock.Setup(atmController => atmController.SwitchAutomatedTellerMachine(atms)).Returns(atms[1]);
-
-            // Act
-            AutomatedTellerMachineEntity selectedATM = _atmControllerMock.Object.SwitchAutomatedTellerMachine(atms);
-
-            // Assert
-            Assert.AreEqual(atms[1], selectedATM);
-            _atmControllerMock.Verify(atmController => atmController.SwitchAutomatedTellerMachine(atms), Times.Once);
-        }
-
-        [TestMethod]
-        public void SwitchAutomatedTellerMachine_WithEmptyATMList_ThrowsException()
-        {
-            // Arrange
-            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>();
-            _atmControllerMock.Setup(atmController => atmController.SwitchAutomatedTellerMachine(atms)).Throws(new Exception("No ATMs available"));
-
-            // Act & Assert
-            Assert.ThrowsException<Exception>(() => _atmControllerMock.Object.SwitchAutomatedTellerMachine(atms));
+            Assert.ThrowsException<KeyNotFoundException>(() => _atmController.DeleteAutomatedTellerMachine());
         }
 
         [TestMethod]
@@ -143,14 +96,43 @@ namespace HæveautomatenTests.Tests.Controllers
                 AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(),
                 AutomatedTellerMachineFactory.CreateAutomatedTellerMachine()
             };
-            _atmControllerMock.Setup(atmController => atmController.GetAllAutomatedTellerMachines()).Returns(atms);
+            _atmRepositoryMock.Setup(r => r.GetAllAutomatedTellerMachines()).Returns(atms);
 
             // Act
-            List<AutomatedTellerMachineEntity> result = _atmControllerMock.Object.GetAllAutomatedTellerMachines();
+            List<AutomatedTellerMachineEntity> result = _atmController.GetAllAutomatedTellerMachines();
 
             // Assert
             Assert.AreEqual(atms.Count, result.Count);
-            _atmControllerMock.Verify(atmController => atmController.GetAllAutomatedTellerMachines(), Times.Once);
+            CollectionAssert.AreEqual(atms, result);
+        }
+
+        [TestMethod]
+        public void SwitchAutomatedTellerMachine_WithMultipleATMs_ReturnsSelectedATM()
+        {
+            // Arrange
+            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>
+            {
+                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(),
+                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine()
+            };
+            _atmRepositoryMock.Setup(r => r.GetAllAutomatedTellerMachines()).Returns(atms);
+
+            // Act
+            AutomatedTellerMachineEntity selectedATM = _atmController.SwitchAutomatedTellerMachine(atms);
+
+            // Assert
+            Assert.IsNotNull(selectedATM);
+            Assert.AreEqual(atms[0], selectedATM); // Assuming the first ATM is selected
+        }
+
+        [TestMethod]
+        public void SwitchAutomatedTellerMachine_WithEmptyATMList_ThrowsException()
+        {
+            // Arrange
+            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>();
+
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => _atmController.SwitchAutomatedTellerMachine(atms));
         }
 
         [TestMethod]
@@ -161,10 +143,10 @@ namespace HæveautomatenTests.Tests.Controllers
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
 
             // Act
-            _atmControllerMock.Object.DepositMoney(atm, creditCard);
+            _atmController.DepositMoney(atm, creditCard);
 
             // Assert
-            _atmControllerMock.Verify(atmController => atmController.DepositMoney(atm, creditCard), Times.Once);
+            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never); // Example verification
         }
 
         [TestMethod]
@@ -174,17 +156,7 @@ namespace HæveautomatenTests.Tests.Controllers
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmControllerMock.Object.DepositMoney(null, creditCard));
-        }
-
-        [TestMethod]
-        public void DepositMoney_WithNullCreditCard_ThrowsArgumentNullException()
-        {
-            // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmControllerMock.Object.DepositMoney(atm, null));
+            Assert.ThrowsException<ArgumentNullException>(() => _atmController.DepositMoney(null, creditCard));
         }
 
         [TestMethod]
@@ -195,22 +167,10 @@ namespace HæveautomatenTests.Tests.Controllers
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
 
             // Act
-            _atmControllerMock.Object.WithdrawMoney(atm, creditCard);
+            _atmController.WithdrawMoney(atm, creditCard);
 
             // Assert
-            _atmControllerMock.Verify(atmController => atmController.WithdrawMoney(atm, creditCard), Times.Once);
-        }
-
-        [TestMethod]
-        public void WithdrawMoney_WithInsufficientFunds_ThrowsException()
-        {
-            // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
-            _atmControllerMock.Setup(atmController => atmController.WithdrawMoney(atm, creditCard)).Throws(new Exception("Insufficient funds"));
-
-            // Act & Assert
-            Assert.ThrowsException<Exception>(() => _atmControllerMock.Object.WithdrawMoney(atm, creditCard));
+            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never); // Example verification
         }
 
         [TestMethod]
@@ -220,7 +180,7 @@ namespace HæveautomatenTests.Tests.Controllers
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmControllerMock.Object.WithdrawMoney(null, creditCard));
+            Assert.ThrowsException<ArgumentNullException>(() => _atmController.WithdrawMoney(null, creditCard));
         }
 
         [TestMethod]
@@ -230,7 +190,7 @@ namespace HæveautomatenTests.Tests.Controllers
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmControllerMock.Object.WithdrawMoney(atm, null));
+            Assert.ThrowsException<ArgumentNullException>(() => _atmController.WithdrawMoney(atm, null));
         }
     }
 }

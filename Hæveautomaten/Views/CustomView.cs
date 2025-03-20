@@ -22,5 +22,10 @@ namespace Hæveautomaten.Views
 
             Console.WriteLine(output);
         }
+
+        internal static void CustomMenu(string[] customMenuOptions, string customBackTitle = "Back")
+        {
+            DisplayMenu(customMenuOptions, customBackTitle);
+        }
     }
 }

@@ -37,5 +37,12 @@ namespace Hæveautomaten.Entities
             IsBlocked = isBlocked;
             Account = account;
         }
+
+        private CreditCardEntity() { }
+
+        public override string ToString()
+        {
+            return $"{CardHolderName} - {CardNumber}";
+        }
     }
 }

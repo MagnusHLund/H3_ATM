@@ -20,5 +20,12 @@ namespace Hæveautomaten.Entities
         {
             BankName = bankName;
         }
+
+        private BankEntity() { }
+
+        public override string ToString()
+        {
+            return BankName;
+        }
     }
 }

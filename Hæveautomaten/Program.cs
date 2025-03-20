@@ -1,7 +1,9 @@
 ﻿using Hæveautomaten.Data;
 using Hæveautomaten.Controllers;
+using Hæveautomaten.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hæveautomaten
@@ -28,10 +30,16 @@ namespace Hæveautomaten
             serviceCollection.AddSingleton<IAdminController, AdminController>();
             serviceCollection.AddSingleton<IPersonController, PersonController>();
             serviceCollection.AddSingleton<IAccountController, AccountController>();
+            serviceCollection.AddSingleton<ICreditCardController, CreditCardController>();
             serviceCollection.AddSingleton<IAutomatedTellerMachineController, AutomatedTellerMachineController>();
 
-            // TODO: Add the actual connection string
-            serviceCollection.AddDbContext<HæveautomatenDbContext>(options => options.UseSqlite("Data Source=Hæveautomaten.db"));
+            serviceCollection.AddSingleton<IAutomatedTellerMachineRepository, AutomatedTellerMachineRepository>();
+            serviceCollection.AddSingleton<ICreditCardRepository, CreditCardRepository>();
+            serviceCollection.AddSingleton<IAccountRepository, AccountRepository>();
+            serviceCollection.AddSingleton<IPersonRepository, PersonRepository>();
+            serviceCollection.AddSingleton<IBankRepository, BankRepository>();
+
+            serviceCollection.AddDbContext<HæveautomatenDbContext>(options => options.UseSqlite("Data Source=Data\\atm.db"));
 
             ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
             return serviceProvider;

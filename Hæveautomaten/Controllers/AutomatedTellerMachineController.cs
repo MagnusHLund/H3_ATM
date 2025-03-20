@@ -1,10 +1,24 @@
+using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Repositories;
 
 namespace Hæveautomaten.Controllers
 {
     public class AutomatedTellerMachineController : IAutomatedTellerMachineController
     {
+        private readonly IAutomatedTellerMachineRepository _automatedTellerMachineRepository;
+        private readonly ICreditCardController _creditCardController;
+        private readonly IAccountController _accountController;
+        private readonly IBankController _bankController;
+
+        public AutomatedTellerMachineController(IAutomatedTellerMachineRepository automatedTellerMachineRepository, IBankController bankController, ICreditCardController creditCardController)
+        {
+            _automatedTellerMachineRepository = automatedTellerMachineRepository;
+            _bankController = bankController;
+            _creditCardController = creditCardController;
+        }
+
         public void HandleAutomatedTellerMachineMenu()
         {
             // Call GetAllAutomatedTellerMachines() and store the result in a variable
@@ -14,20 +28,40 @@ namespace Hæveautomaten.Controllers
             // If user input is 1, call UseAutomatedTellerMachine()
             // If user input is 2, call SwitchAutomatedTellerMachine()
             // If user input is 0, return to main menu
+
+            AutomatedTellerMachineEntity atm = SelectAutomatedTellerMachine();
+
+            while (true)
+            {
+                CreditCardEntity creditCard = _creditCardController.SelectCreditCard();
+                AccountEntity account = _accountController.GetAccountByCard(creditCard);
+
+                string bankName = atm.Bank.ToString();
+
+                AutomatedTellerMachineView.AutomatedTellerMachineMainMenu(bankName);
+            }
         }
 
-        public bool CreateAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
+        public bool CreateAutomatedTellerMachine()
         {
-            // Create the automated teller machine and save it in the database
+            BankEntity bank = _bankController.SelectBank();
+            uint minimumExchangeAmount = uint.Parse(CustomView.GetUserInputWithTitle("Enter the minimum exchange amount: "));
 
-            throw new NotImplementedException();
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(
+                bank: bank,
+                minimumExchangeAmount: minimumExchangeAmount
+            );
+
+            bool success = _automatedTellerMachineRepository.CreateAutomatedTellerMachine(atm);
+            return success;
         }
 
-        public bool DeleteAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
+        public bool DeleteAutomatedTellerMachine()
         {
-            // Delete the automated teller machine from the database
+            AutomatedTellerMachineEntity atm = SelectAutomatedTellerMachine();
 
-            throw new NotImplementedException();
+            bool success = _automatedTellerMachineRepository.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId);
+            return success;
         }
 
         public void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
@@ -45,19 +79,31 @@ namespace Hæveautomaten.Controllers
 
         public List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines()
         {
-            // Get all automated teller machines and return them
-
-            throw new NotImplementedException();
+            List<AutomatedTellerMachineEntity> atms = _automatedTellerMachineRepository.GetAllAutomatedTellerMachines();
+            return atms;
         }
 
         public void DepositMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard)
         {
-            // Deposit money into the atm
+
         }
 
         public void WithdrawMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard)
         {
             // Deposit money into the atm
+        }
+
+        public AutomatedTellerMachineEntity SelectAutomatedTellerMachine()
+        {
+            List<AutomatedTellerMachineEntity> atms = GetAllAutomatedTellerMachines();
+            string[] atmIdentifiers = atms.Select(atm => atm.ToString()).ToArray();
+
+            CustomView.CustomMenu(atmIdentifiers);
+
+            string userInput = CustomView.GetUserInput();
+            int atmIndex = int.Parse(userInput) - 1;
+
+            return atms[atmIndex];
         }
     }
 }

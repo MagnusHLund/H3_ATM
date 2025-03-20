@@ -4,8 +4,9 @@ namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface IBankController
     {
-        bool CreateBank(BankEntity bank);
-        bool DeleteBank(BankEntity bank);
+        bool CreateBank();
+        bool DeleteBank();
+        BankEntity SelectBank();
         List<BankEntity> GetAllBanks();
     }
 }

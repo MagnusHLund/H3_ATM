@@ -1,33 +1,76 @@
+using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Repositories;
 
 namespace Hæveautomaten.Controllers
 {
     public class CreditCardController : ICreditCardController
     {
-        public bool CreateCreditCard(CreditCardEntity creditCard)
+        private readonly ICreditCardRepository _creditCardRepository;
+        private readonly IPersonController _personController;
+        private readonly IAccountController _accountController;
+
+        public CreditCardController(ICreditCardRepository creditCardRepository, IPersonController personController, IAccountController accountController)
         {
-            // Create a new credit card
-
-            // First pick a person, that owns the credit card
-            // Get the values of the credit card number, expiration date, and cvv, 
-            // Expiration date, pin code, isBlocked, associatedAccountNumber
-
-            throw new NotImplementedException();
+            _creditCardRepository = creditCardRepository;
+            _personController = personController;
+            _accountController = accountController;
         }
 
-        public bool DeleteCreditCard(CreditCardEntity creditCard)
+        public bool CreateCreditCard()
         {
-            // Delete the credit card from the database
+            PersonEntity cardOwner = _personController.SelectPerson();
+            string cardHolderName = cardOwner.ToString();
 
-            throw new NotImplementedException();
+            List<AccountEntity> accountsByPerson = _accountController.GetAccountsByPerson(cardOwner);
+            AccountEntity associatedAccount = _accountController.SelectAccount(accountsByPerson);
+
+            ulong cardNumber = ulong.Parse(CustomView.GetUserInputWithTitle("Enter the card number: "));
+            DateTime expirationDate = DateTime.Parse(CustomView.GetUserInputWithTitle("Enter the expiration date (MM/YY): "));
+            ushort cvv = ushort.Parse(CustomView.GetUserInputWithTitle("Enter the CVV: "));
+            ushort pinCode = ushort.Parse(CustomView.GetUserInputWithTitle("Enter the pin code: "));
+            bool isBlocked = CustomView.GetUserInputWithTitle("Is the card blocked? (true/false): ") == "true";
+
+            CreditCardEntity creditCard = new CreditCardEntity(
+                cardHolderName: cardHolderName,
+                cardNumber: cardNumber,
+                expirationDate: expirationDate,
+                cvv: cvv,
+                pinCode: pinCode,
+                isBlocked: isBlocked,
+                account: associatedAccount
+            );
+
+            bool success = _creditCardRepository.CreateCreditCard(creditCard);
+            return success;
+        }
+
+        public bool DeleteCreditCard()
+        {
+            CreditCardEntity creditCard = SelectCreditCard();
+
+            bool success = _creditCardRepository.DeleteCreditCard(creditCard.CreditCardId);
+            return success;
+        }
+
+        public CreditCardEntity SelectCreditCard()
+        {
+            List<CreditCardEntity> creditCards = GetAllCreditCards();
+            string[] CreditCardIdentifiers = creditCards.Select(creditCard => creditCard.ToString()).ToArray();
+
+            CustomView.CustomMenu(CreditCardIdentifiers);
+
+            string userInput = CustomView.GetUserInput();
+            int creditCardIndex = int.Parse(userInput) - 1;
+
+            return creditCards[creditCardIndex];
         }
 
         public List<CreditCardEntity> GetAllCreditCards()
         {
-            // Get all credit cards and return them
-
-            throw new NotImplementedException();
+            List<CreditCardEntity> creditCards = _creditCardRepository.GetAllCreditCards();
+            return creditCards;
         }
 
         public bool IsCreditCardValid(CreditCardEntity creditCard)

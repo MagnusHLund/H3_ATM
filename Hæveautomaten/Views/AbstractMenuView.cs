@@ -7,7 +7,7 @@ namespace Hæveautomaten.Views
             int lineLength = headerTitle.Length + 4;
             string border = new string('=', lineLength);
 
-            Console.Clear();
+            //Console.Clear();
             Console.WriteLine(border);
             Console.WriteLine($"  {headerTitle}  ");
             Console.WriteLine(border);

@@ -1,8 +1,6 @@
 using Moq;
 using Hæveautomaten.Controllers;
 using Hæveautomaten.Interfaces.Controllers;
-using Hæveautomaten.Entities;
-using HæveautomatenTests.Factories;
 
 namespace HæveautomatenTests.Tests.Controllers
 {
@@ -41,104 +39,110 @@ namespace HæveautomatenTests.Tests.Controllers
             string input = "1";
 
             // Act
-            _adminController.HandleAdminMenu(input);
+            _adminController.HandleAdminMenuInput(input);
 
             // Assert
-            _personControllerMock.Verify(p => p.CreatePerson(It.IsAny<PersonEntity>()), Times.Once);
+            _personControllerMock.Verify(p => p.CreatePerson(), Times.Once);
         }
 
         [TestMethod]
-        public void HandleAdminMenu_WithInvalidInput_ThrowsArgumentException()
+        public void HandleAdminMenu_WithInvalidInput_ThrowsInvalidOperationException()
         {
             // Arrange
             string input = "invalid";
 
-            // Act & assert
-            Assert.ThrowsException<ArgumentException>(() => _adminController.HandleAdminMenu(input));
-
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => _adminController.HandleAdminMenuInput(input));
         }
 
         [TestMethod]
         public void CreatePerson_CallsPersonControllerCreatePerson()
         {
-            // Arrange
-            PersonEntity person = PersonFactory.CreatePerson();
-
             // Act
-            _adminController.CreatePerson();
+            _adminController.HandleAdminMenuInput("1");
 
             // Assert
-            _personControllerMock.Verify(p => p.CreatePerson(It.IsAny<PersonEntity>()), Times.Once);
+            _personControllerMock.Verify(p => p.CreatePerson(), Times.Once);
         }
 
         [TestMethod]
         public void DeletePerson_CallsPersonControllerDeletePerson()
         {
             // Act
-            _adminController.DeletePerson();
+            _adminController.HandleAdminMenuInput("2");
 
             // Assert
-            _personControllerMock.Verify(p => p.DeletePerson(It.IsAny<PersonEntity>()), Times.Once);
+            _personControllerMock.Verify(p => p.DeletePerson(), Times.Once);
         }
 
         [TestMethod]
         public void CreateAccount_CallsAccountControllerCreateAccount()
         {
             // Act
-            _adminController.CreateAccount();
+            _adminController.HandleAdminMenuInput("5");
 
             // Assert
-            _accountControllerMock.Verify(a => a.CreateAccount(It.IsAny<AccountEntity>()), Times.Once);
+            _accountControllerMock.Verify(a => a.CreateAccount(), Times.Once);
         }
 
         [TestMethod]
         public void DeleteAccount_CallsAccountControllerDeleteAccount()
         {
             // Act
-            _adminController.DeleteAccount();
+            _adminController.HandleAdminMenuInput("6");
 
             // Assert
-            _accountControllerMock.Verify(a => a.DeleteAccount(It.IsAny<AccountEntity>()), Times.Once);
+            _accountControllerMock.Verify(a => a.DeleteAccount(), Times.Once);
         }
 
         [TestMethod]
         public void CreateBank_CallsBankControllerCreateBank()
         {
             // Act
-            _adminController.CreateBank();
+            _adminController.HandleAdminMenuInput("7");
 
             // Assert
-            _bankControllerMock.Verify(b => b.CreateBank(It.IsAny<BankEntity>()), Times.Once);
+            _bankControllerMock.Verify(b => b.CreateBank(), Times.Once);
         }
 
         [TestMethod]
         public void DeleteBank_CallsBankControllerDeleteBank()
         {
             // Act
-            _adminController.DeleteBank();
+            _adminController.HandleAdminMenuInput("8");
 
             // Assert
-            _bankControllerMock.Verify(b => b.DeleteBank(It.IsAny<BankEntity>()), Times.Once);
+            _bankControllerMock.Verify(b => b.DeleteBank(), Times.Once);
         }
 
         [TestMethod]
-        public void CreateAutomatedTellerMachine_CallsATMControllerCreateATM()
+        public void CreateAutomatedTellerMachine_CallsATMControllerCreateAutomatedTellerMachine()
         {
             // Act
-            _adminController.CreateAutomatedTellerMachine();
+            _adminController.HandleAdminMenuInput("9");
 
             // Assert
-            _atmControllerMock.Verify(atm => atm.CreateAutomatedTellerMachine(It.IsAny<AutomatedTellerMachineEntity>()), Times.Once);
+            _atmControllerMock.Verify(atm => atm.CreateAutomatedTellerMachine(), Times.Once);
         }
 
         [TestMethod]
-        public void DeleteAutomatedTellerMachine_CallsATMControllerDeleteATM()
+        public void DeleteAutomatedTellerMachine_CallsATMControllerDeleteAutomatedTellerMachine()
         {
             // Act
-            _adminController.DeleteAutomatedTellerMachine();
+            _adminController.HandleAdminMenuInput("10");
 
             // Assert
-            _atmControllerMock.Verify(atm => atm.DeleteAutomatedTellerMachine(It.IsAny<AutomatedTellerMachineEntity>()), Times.Once);
+            _atmControllerMock.Verify(atm => atm.DeleteAutomatedTellerMachine(), Times.Once);
+        }
+
+        [TestMethod]
+        public void HandleAdminMenu_WithExitInput_DoesNotThrowException()
+        {
+            // Arrange
+            string input = "0";
+
+            // Act & Assert
+            _adminController.HandleAdminMenuInput(input);
         }
     }
 }

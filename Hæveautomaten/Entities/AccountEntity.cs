@@ -25,5 +25,12 @@ namespace Hæveautomaten.Entities
             CreditCards = creditCards ?? new List<CreditCardEntity>();
             AccountOwner = accountOwner;
         }
+
+        private AccountEntity() { }
+
+        public override string ToString()
+        {
+            return $"Account ID: {AccountId} - Balance: {BalanceInMinorUnits / 100} DKK";
+        }
     }
 }

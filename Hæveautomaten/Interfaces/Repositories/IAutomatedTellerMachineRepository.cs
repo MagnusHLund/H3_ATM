@@ -6,5 +6,6 @@ namespace Hæveautomaten.Interfaces.Repositories
     {
         bool CreateAutomatedTellerMachine(AutomatedTellerMachineEntity atm);
         bool DeleteAutomatedTellerMachine(uint atmId);
+        List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines();
     }
 }

@@ -4,8 +4,9 @@ namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface IPersonController
     {
-        bool CreatePerson(PersonEntity person);
-        bool DeletePerson(PersonEntity person);
+        bool CreatePerson();
+        bool DeletePerson();
+        PersonEntity SelectPerson();
         List<PersonEntity> GetAllPeople();
     }
 }

@@ -1,0 +1,25 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/Hæveautomaten/Hæveautomaten.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "test",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "test",
+        "${workspaceFolder}/Hæveautomaten.Tests/Hæveautomaten.Tests.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}

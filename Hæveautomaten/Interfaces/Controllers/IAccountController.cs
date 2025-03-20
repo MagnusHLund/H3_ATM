@@ -4,8 +4,11 @@ namespace Hæveautomaten.Interfaces.Controllers
 {
     public interface IAccountController
     {
-        bool CreateAccount(AccountEntity account);
-        bool DeleteAccount(AccountEntity account);
+        bool CreateAccount();
+        bool DeleteAccount();
+        List<AccountEntity> GetAccountsByPerson(PersonEntity person);
+        AccountEntity SelectAccount(List<AccountEntity> accounts = null);
+        AccountEntity GetAccountByCard(CreditCardEntity creditCard);
         List<AccountEntity> GetAllAccounts();
     }
 }

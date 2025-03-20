@@ -6,5 +6,6 @@ namespace Hæveautomaten.Interfaces.Repositories
     {
         bool CreateBank(BankEntity bank);
         bool DeleteBank(uint bankId);
+        List<BankEntity> GetAllBanks();
     }
 }

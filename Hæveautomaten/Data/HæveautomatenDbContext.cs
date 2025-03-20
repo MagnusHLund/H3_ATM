@@ -11,6 +11,8 @@ namespace Hæveautomaten.Data
         public DbSet<BankEntity> Banks { get; set; }
         public DbSet<AutomatedTellerMachineEntity> AutomatedTellerMachines { get; set; }
 
+        public HæveautomatenDbContext(DbContextOptions<HæveautomatenDbContext> options) : base(options) { }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // AccountEntity Configuration
@@ -76,10 +78,12 @@ namespace Hæveautomaten.Data
                 .HasKey(atm => atm.AutomatedTellerMachineId);
 
             modelBuilder.Entity<AutomatedTellerMachineEntity>()
-                .HasOne<BankEntity>()
+                .HasOne(atm => atm.Bank)
                 .WithMany(b => b.AutomatedTellerMachines)
                 .HasForeignKey("BankId")
                 .OnDelete(DeleteBehavior.Cascade);
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

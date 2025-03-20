@@ -1,56 +1,58 @@
 using Moq;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
-using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Repositories;
 
 namespace HæveautomatenTests.Tests.Controllers
 {
     [TestClass]
     public class BankControllerTests
     {
-        private Mock<IBankController> _bankControllerMock;
+        private Mock<IBankRepository> _bankRepositoryMock;
+        private BankController _bankController;
 
         [TestInitialize]
         public void Setup()
         {
-            _bankControllerMock = new Mock<IBankController>();
+            _bankRepositoryMock = new Mock<IBankRepository>();
+            _bankController = new BankController(_bankRepositoryMock.Object);
         }
 
         [TestMethod]
         public void CreateBank_WithValidData_CreatesSuccessfully()
         {
             // Arrange
-            BankEntity bank = BankFactory.CreateBank();
-            _bankControllerMock.Setup(b => b.CreateBank(bank)).Returns(true);
+            string bankName = "Test Bank";
+            BankEntity bank = new BankEntity(bankName);
+            _bankRepositoryMock.Setup(r => r.CreateBank(It.IsAny<BankEntity>())).Returns(true);
 
             // Act
-            bool result = _bankControllerMock.Object.CreateBank(bank);
+            bool result = _bankController.CreateBank();
 
             // Assert
             Assert.IsTrue(result);
-            _bankControllerMock.Verify(b => b.CreateBank(bank), Times.Once);
+            _bankRepositoryMock.Verify(r => r.CreateBank(It.Is<BankEntity>(b => b.BankName == bankName)), Times.Once);
         }
 
         [TestMethod]
         public void CreateBank_WithEmptyStringBankName_ThrowsArgumentException()
         {
             // Arrange
-            BankEntity bank = BankFactory.CreateBank(bankName: "");
-            _bankControllerMock.Setup(b => b.CreateBank(bank)).Throws(new ArgumentException("Bank name cannot be empty"));
+            _bankRepositoryMock.Setup(r => r.CreateBank(It.IsAny<BankEntity>())).Throws(new ArgumentException("Bank name cannot be empty"));
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentException>(() => _bankControllerMock.Object.CreateBank(bank));
+            Assert.ThrowsException<ArgumentException>(() => _bankController.CreateBank());
         }
 
         [TestMethod]
         public void CreateBank_WithNullBankName_ThrowsArgumentNullException()
         {
             // Arrange
-            BankEntity bank = BankFactory.CreateBank(bankName: null);
-            _bankControllerMock.Setup(b => b.CreateBank(bank)).Throws(new ArgumentNullException("Bank name cannot be null"));
+            _bankRepositoryMock.Setup(r => r.CreateBank(It.IsAny<BankEntity>())).Throws(new ArgumentNullException("Bank name cannot be null"));
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _bankControllerMock.Object.CreateBank(bank));
+            Assert.ThrowsException<ArgumentNullException>(() => _bankController.CreateBank());
         }
 
         [TestMethod]
@@ -58,25 +60,25 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             BankEntity bank = BankFactory.CreateBank();
-            _bankControllerMock.Setup(b => b.DeleteBank(bank)).Returns(true);
+            _bankRepositoryMock.Setup(r => r.DeleteBank(bank.BankId)).Returns(true);
 
             // Act
-            bool result = _bankControllerMock.Object.DeleteBank(bank);
+            bool result = _bankController.DeleteBank();
 
             // Assert
             Assert.IsTrue(result);
-            _bankControllerMock.Verify(b => b.DeleteBank(bank), Times.Once);
+            _bankRepositoryMock.Verify(r => r.DeleteBank(bank.BankId), Times.Once);
         }
 
         [TestMethod]
-        public void DeleteBank_WithNonExistingBank_ThrowsException()
+        public void DeleteBank_WithNonExistingBank_ThrowsKeyNotFoundException()
         {
             // Arrange
             BankEntity bank = BankFactory.CreateBank();
-            _bankControllerMock.Setup(b => b.DeleteBank(bank)).Throws(new Exception("Bank not found"));
+            _bankRepositoryMock.Setup(r => r.DeleteBank(bank.BankId)).Throws(new KeyNotFoundException("Bank not found"));
 
             // Act & Assert
-            Assert.ThrowsException<Exception>(() => _bankControllerMock.Object.DeleteBank(bank));
+            Assert.ThrowsException<KeyNotFoundException>(() => _bankController.DeleteBank());
         }
 
         [TestMethod]
@@ -88,14 +90,15 @@ namespace HæveautomatenTests.Tests.Controllers
                 BankFactory.CreateBank(),
                 BankFactory.CreateBank()
             };
-            _bankControllerMock.Setup(b => b.GetAllBanks()).Returns(banks);
+            _bankRepositoryMock.Setup(r => r.GetAllBanks()).Returns(banks);
 
             // Act
-            List<BankEntity> result = _bankControllerMock.Object.GetAllBanks();
+            List<BankEntity> result = _bankController.GetAllBanks();
 
             // Assert
             Assert.AreEqual(banks.Count, result.Count);
-            _bankControllerMock.Verify(b => b.GetAllBanks(), Times.Once);
+            CollectionAssert.AreEqual(banks, result);
+            _bankRepositoryMock.Verify(r => r.GetAllBanks(), Times.Once);
         }
     }
 }

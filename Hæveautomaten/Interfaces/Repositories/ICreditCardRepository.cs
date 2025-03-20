@@ -6,5 +6,6 @@ namespace Hæveautomaten.Interfaces.Repositories
     {
         bool CreateCreditCard(CreditCardEntity creditCard);
         bool DeleteCreditCard(uint creditCardId);
+        List<CreditCardEntity> GetAllCreditCards();
     }
 }

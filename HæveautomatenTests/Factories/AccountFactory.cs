@@ -7,17 +7,20 @@ namespace HæveautomatenTests.Factories
         internal static AccountEntity CreateAccount(
             PersonEntity accountOwner = null,
             BankEntity associatedBank = null,
+            List<CreditCardEntity> creditCards = null,
             long balanceInMinorUnits = 1000
         )
         {
             accountOwner ??= PersonFactory.CreatePerson();
             associatedBank ??= BankFactory.CreateBank();
+            creditCards ??= new List<CreditCardEntity>() { CreditCardFactory.CreateCreditCard() };
 
             AccountEntity account = new AccountEntity
             (
                 accountOwner: accountOwner,
                 balanceInMinorUnits: balanceInMinorUnits,
-                bank: associatedBank
+                bank: associatedBank,
+                creditCards: creditCards
             );
 
             associatedBank.Accounts.Add(account);
@@ -29,6 +32,7 @@ namespace HæveautomatenTests.Factories
             int numberOfAccounts = 3,
             PersonEntity accountOwner = null,
             BankEntity associatedBank = null,
+            List<CreditCardEntity> creditCards = null,
             long balanceInMinorUnits = 1000
         )
         {
@@ -36,7 +40,12 @@ namespace HæveautomatenTests.Factories
 
             for (int i = 0; i < numberOfAccounts; i++)
             {
-                accounts.Add(CreateAccount(accountOwner, associatedBank, balanceInMinorUnits));
+                accounts.Add(CreateAccount(
+                    accountOwner: accountOwner,
+                    associatedBank: associatedBank,
+                    creditCards: creditCards,
+                    balanceInMinorUnits: balanceInMinorUnits
+                ));
             }
 
             return accounts;
