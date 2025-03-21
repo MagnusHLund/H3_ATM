@@ -4,7 +4,7 @@ namespace Hæveautomaten.Interfaces.Views
     {
         string GetUserInput();
         string GetUserInputWithTitle(string message);
-        void CustomOutput(string output, bool clearConsole);
+        void CustomOutput(string output);
         void CustomMenu(string[] customMenuOptions, string customBackTitle = "Back");
     }
 }

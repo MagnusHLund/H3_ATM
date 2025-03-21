@@ -21,7 +21,7 @@ namespace HæveautomatenTests.Tests.Entities
             // Assert
             Assert.AreEqual(minimumExchangeAmount, atm.MinimumExchangeAmount);
             Assert.AreEqual(bank, atm.Bank);
-            Assert.AreEqual<uint>(0, atm.AutomatedTellerMachineId);
+            Assert.AreEqual(0, atm.AutomatedTellerMachineId);
         }
 
         [TestMethod]

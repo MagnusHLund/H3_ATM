@@ -16,58 +16,32 @@ namespace Hæveautomaten.Repositories
 
         public bool CreateCreditCard(CreditCardEntity creditCard)
         {
-            try
-            {
-                _context.CreditCards.Add(creditCard);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating credit card: {ex.Message}");
-                return false;
-            }
+            _context.CreditCards.Add(creditCard);
+            _context.SaveChanges();
+            return true;
         }
 
-        public bool DeleteCreditCard(uint creditCardId)
+        public bool DeleteCreditCard(int creditCardId)
         {
-            try
-            {
-                CreditCardEntity creditCard = _context.CreditCards.Find(creditCardId);
-                if (creditCard == null)
-                {
-                    throw new KeyNotFoundException($"Credit card with ID {creditCardId} not found.");
-                }
+            CreditCardEntity creditCard = _context.CreditCards.Find(creditCardId);
 
-                _context.CreditCards.Remove(creditCard);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (KeyNotFoundException ex)
+            if (creditCard == null)
             {
-                Console.WriteLine($"Error deleting credit card: {ex.Message}");
-                return false;
+                throw new KeyNotFoundException($"Credit card with ID {creditCardId} not found.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting credit card: {ex.Message}");
-                return false;
-            }
+
+            _context.CreditCards.Remove(creditCard);
+            _context.SaveChanges();
+            return true;
         }
 
         public List<CreditCardEntity> GetAllCreditCards()
         {
-            try
-            {
-                return _context.CreditCards
-                    .Include(cc => cc.Account)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving credit cards: {ex.Message}");
-                return new List<CreditCardEntity>();
-            }
+            List<CreditCardEntity> creditCards = _context.CreditCards
+                .Include(cc => cc.Account)
+                .ToList();
+
+            return creditCards;
         }
     }
 }

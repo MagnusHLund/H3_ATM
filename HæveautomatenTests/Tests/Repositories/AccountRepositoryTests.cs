@@ -2,23 +2,36 @@ using Hæveautomaten.Data;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Repositories;
 using HæveautomatenTests.Factories;
-using HæveautomatenTests.Utils;
 using Microsoft.EntityFrameworkCore;
-using Moq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace HæveautomatenTests.Tests.Repositories
 {
     [TestClass]
     public class AccountRepositoryTests
     {
-        private Mock<HæveautomatenDbContext> _dbContextMock;
+        private HæveautomatenDbContext _dbContext;
         private AccountRepository _accountRepository;
 
         [TestInitialize]
         public void Setup()
         {
-            _dbContextMock = new Mock<HæveautomatenDbContext>();
-            _accountRepository = new AccountRepository(_dbContextMock.Object);
+            var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            _dbContext = new HæveautomatenDbContext(options);
+            _accountRepository = new AccountRepository(_dbContext);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Dispose();
         }
 
         [TestMethod]
@@ -32,6 +45,14 @@ namespace HæveautomatenTests.Tests.Repositories
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(1, _dbContext.Accounts.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void CreateAccount_WithNullAccount_ThrowsNullReferenceException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<NullReferenceException>(() => _accountRepository.CreateAccount(null));
         }
 
         [TestMethod]
@@ -39,13 +60,22 @@ namespace HæveautomatenTests.Tests.Repositories
         {
             // Arrange
             AccountEntity account = AccountFactory.CreateAccount();
-            _dbContextMock.Setup(db => db.Accounts.Find(account.AccountId)).Returns(account);
+            _dbContext.Accounts.Add(account);
+            _dbContext.SaveChanges();
 
             // Act
             bool result = _accountRepository.DeleteAccount(account.AccountId);
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(0, _dbContext.Accounts.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void DeleteAccount_WithNonExistingAccount_ThrowsKeyNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => _accountRepository.DeleteAccount(999));
         }
 
         [TestMethod]
@@ -53,13 +83,78 @@ namespace HæveautomatenTests.Tests.Repositories
         {
             // Arrange
             List<AccountEntity> accounts = AccountFactory.CreateAccounts();
-            _dbContextMock.Setup(db => db.Accounts).Returns(MockUtils.CreateMockDbSet(accounts).Object);
+            _dbContext.Accounts.AddRange(accounts);
+            _dbContext.SaveChanges();
 
             // Act
             List<AccountEntity> result = _accountRepository.GetAllAccounts();
 
             // Assert
             Assert.AreEqual(accounts.Count, result.Count);
+        }
+
+        [TestMethod]
+        public void GetAllAccounts_WithNoAccounts_ReturnsEmptyList()
+        {
+            // Act
+            List<AccountEntity> result = _accountRepository.GetAllAccounts();
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void GetAccountsByPerson_WithExistingPerson_ReturnsAccounts()
+        {
+            // Arrange
+            PersonEntity person = PersonFactory.CreatePerson();
+            List<AccountEntity> accounts = AccountFactory.CreateAccounts(accountOwner: person);
+            _dbContext.Accounts.AddRange(accounts);
+            _dbContext.SaveChanges();
+
+            // Act
+            List<AccountEntity> result = _accountRepository.GetAccountsByPerson(person.PersonId);
+
+            // Assert
+            Assert.AreEqual(accounts.Count, result.Count);
+        }
+
+        [TestMethod]
+        public void GetAccountsByPerson_WithNonExistingPerson_ReturnsEmptyList()
+        {
+            // Act
+            List<AccountEntity> result = _accountRepository.GetAccountsByPerson(999);
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void UpdateAccount_WithValidData_UpdatesSuccessfully()
+        {
+            // Arrange
+            AccountEntity account = AccountFactory.CreateAccount();
+            _dbContext.Accounts.Add(account);
+            _dbContext.SaveChanges();
+
+            account.BalanceInMinorUnits += 5000;
+
+            // Act
+            AccountEntity updatedAccount = _accountRepository.UpdateAccount(account);
+
+            // Assert
+            Assert.AreEqual(account.BalanceInMinorUnits, updatedAccount.BalanceInMinorUnits);
+        }
+
+        [TestMethod]
+        public void UpdateAccount_WithNonExistingAccount_ThrowsDbUpdateConcurrencyException()
+        {
+            // Arrange
+            AccountEntity account = AccountFactory.CreateAccount();
+            account.AccountId = 999; // Simulate non-existing account
+
+            // Act & Assert
+            Assert.ThrowsException<DbUpdateConcurrencyException>(() => _accountRepository.UpdateAccount(account));
         }
     }
 }

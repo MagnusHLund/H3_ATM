@@ -1,8 +1,8 @@
+using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
-using Hæveautomaten.Views;
 
 namespace Hæveautomaten.Controllers
 {
@@ -86,6 +86,12 @@ namespace Hæveautomaten.Controllers
         {
             List<AccountEntity> accounts = _accountRepository.GetAllAccounts();
             return accounts;
+        }
+
+        public AccountEntity UpdateAccount(AccountEntity account)
+        {
+            AccountEntity updatedAccount = _accountRepository.UpdateAccount(account);
+            return updatedAccount;
         }
     }
 }

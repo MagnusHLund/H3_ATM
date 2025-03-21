@@ -7,11 +7,10 @@ namespace Hæveautomaten.Interfaces.Controllers
         void HandleAutomatedTellerMachineMenu();
         bool CreateAutomatedTellerMachine();
         bool DeleteAutomatedTellerMachine();
-        void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm);
-        AutomatedTellerMachineEntity SwitchAutomatedTellerMachine(List<AutomatedTellerMachineEntity> atms);
+        void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard, AccountEntity account);
         List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines();
         AutomatedTellerMachineEntity SelectAutomatedTellerMachine();
-        void DepositMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard);
-        void WithdrawMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard);
+        long DepositMoney(AutomatedTellerMachineEntity atm, AccountEntity accountEntity);
+        long WithdrawMoney(AutomatedTellerMachineEntity atm, AccountEntity accountEntity);
     }
 }

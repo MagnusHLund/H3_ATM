@@ -1,4 +1,3 @@
-
 using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;

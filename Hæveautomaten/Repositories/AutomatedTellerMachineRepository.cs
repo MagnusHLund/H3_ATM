@@ -16,58 +16,33 @@ namespace Hæveautomaten.Repositories
 
         public bool CreateAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
         {
-            try
-            {
-                _context.AutomatedTellerMachines.Add(atm);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating ATM: {ex.Message}");
-                return false;
-            }
+            _context.AutomatedTellerMachines.Add(atm);
+            _context.SaveChanges();
+            return true;
+
         }
 
-        public bool DeleteAutomatedTellerMachine(uint atmId)
+        public bool DeleteAutomatedTellerMachine(int atmId)
         {
-            try
-            {
-                AutomatedTellerMachineEntity atm = _context.AutomatedTellerMachines.Find(atmId);
-                if (atm == null)
-                {
-                    throw new KeyNotFoundException($"ATM with ID {atmId} not found.");
-                }
+            AutomatedTellerMachineEntity atm = _context.AutomatedTellerMachines.Find(atmId);
 
-                _context.AutomatedTellerMachines.Remove(atm);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (KeyNotFoundException ex)
+            if (atm == null)
             {
-                Console.WriteLine($"Error deleting ATM: {ex.Message}");
-                return false;
+                throw new KeyNotFoundException($"ATM with ID {atmId} not found.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting ATM: {ex.Message}");
-                return false;
-            }
+
+            _context.AutomatedTellerMachines.Remove(atm);
+            _context.SaveChanges();
+            return true;
         }
 
         public List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines()
         {
-            try
-            {
-                return _context.AutomatedTellerMachines
-                    .Include(atm => atm.Bank) 
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving ATMs: {ex.Message}");
-                return new List<AutomatedTellerMachineEntity>();
-            }
+            List<AutomatedTellerMachineEntity> atms = _context.AutomatedTellerMachines
+                .Include(atm => atm.Bank)
+                .ToList();
+
+            return atms;
         }
     }
 }

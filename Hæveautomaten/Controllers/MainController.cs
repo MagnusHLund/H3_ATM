@@ -39,17 +39,9 @@ namespace Hæveautomaten.Controllers
                 case "2":
                     _automatedTellerMachineController.HandleAutomatedTellerMachineMenu();
                     break;
-                case "0":
-                    CloseApplication();
-                    break;
                 default:
                     throw new InvalidOperationException("Invalid input");
             }
-        }
-
-        private static void CloseApplication()
-        {
-            Environment.Exit(0);
         }
     }
 }

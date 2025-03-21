@@ -5,7 +5,7 @@ namespace Hæveautomaten.Interfaces.Repositories
     public interface IPersonRepository
     {
         bool CreatePerson(PersonEntity person);
-        bool DeletePerson(uint personId);
+        bool DeletePerson(int personId);
         List<PersonEntity> GetAllPeople();
     }
 }

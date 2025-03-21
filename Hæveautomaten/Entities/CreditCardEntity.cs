@@ -5,7 +5,7 @@ namespace Hæveautomaten.Entities
     public class CreditCardEntity
     {
         [Key]
-        public uint CreditCardId { get; set; }
+        public int CreditCardId { get; set; }
 
         [Required]
         public ulong CardNumber { get; set; }

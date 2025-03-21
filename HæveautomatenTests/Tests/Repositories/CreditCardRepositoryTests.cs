@@ -2,22 +2,32 @@ using Hæveautomaten.Data;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Repositories;
 using HæveautomatenTests.Factories;
-using HæveautomatenTests.Utils;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 
 namespace HæveautomatenTests.Tests.Repositories
 {
     [TestClass]
     public class CreditCardRepositoryTests
     {
-        private Mock<HæveautomatenDbContext> _dbContextMock;
+        private HæveautomatenDbContext _dbContext;
         private CreditCardRepository _creditCardRepository;
 
         [TestInitialize]
         public void Setup()
         {
-            _dbContextMock = new Mock<HæveautomatenDbContext>();
-            _creditCardRepository = new CreditCardRepository(_dbContextMock.Object);
+            var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            _dbContext = new HæveautomatenDbContext(options);
+            _creditCardRepository = new CreditCardRepository(_dbContext);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Dispose();
         }
 
         [TestMethod]
@@ -31,6 +41,14 @@ namespace HæveautomatenTests.Tests.Repositories
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(1, _dbContext.CreditCards.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void CreateCreditCard_WithNullCreditCard_ThrowsNullReferenceException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<NullReferenceException>(() => _creditCardRepository.CreateCreditCard(null));
         }
 
         [TestMethod]
@@ -38,13 +56,22 @@ namespace HæveautomatenTests.Tests.Repositories
         {
             // Arrange
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
-            _dbContextMock.Setup(db => db.CreditCards.Find(creditCard.CreditCardId)).Returns(creditCard);
+            _dbContext.CreditCards.Add(creditCard);
+            _dbContext.SaveChanges();
 
             // Act
             bool result = _creditCardRepository.DeleteCreditCard(creditCard.CreditCardId);
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(0, _dbContext.CreditCards.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void DeleteCreditCard_WithNonExistingCard_ThrowsKeyNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => _creditCardRepository.DeleteCreditCard(999));
         }
 
         [TestMethod]
@@ -56,13 +83,36 @@ namespace HæveautomatenTests.Tests.Repositories
                 CreditCardFactory.CreateCreditCard(),
                 CreditCardFactory.CreateCreditCard()
             };
-            _dbContextMock.Setup(db => db.CreditCards).Returns(MockUtils.CreateMockDbSet(creditCards).Object);
+            _dbContext.CreditCards.AddRange(creditCards);
+            _dbContext.SaveChanges();
 
             // Act
             List<CreditCardEntity> result = _creditCardRepository.GetAllCreditCards();
 
             // Assert
             Assert.AreEqual(creditCards.Count, result.Count);
+        }
+
+        [TestMethod]
+        public void GetAllCreditCards_WithNoCreditCards_ReturnsEmptyList()
+        {
+            // Act
+            List<CreditCardEntity> result = _creditCardRepository.GetAllCreditCards();
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void CreateCreditCard_WithDuplicateCard_ThrowsArgumentException()
+        {
+            // Arrange
+            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
+            _dbContext.CreditCards.Add(creditCard);
+            _dbContext.SaveChanges();
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() => _creditCardRepository.CreateCreditCard(creditCard));
         }
     }
 }

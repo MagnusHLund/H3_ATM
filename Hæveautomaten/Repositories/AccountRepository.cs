@@ -16,77 +16,52 @@ namespace Hæveautomaten.Repositories
 
         public bool CreateAccount(AccountEntity account)
         {
-            try
-            {
-                _context.Accounts.Add(account);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating account: {ex.InnerException.Message}");
-                return false;
-            }
+            _context.Accounts.Add(account);
+            _context.SaveChanges();
+            return true;
         }
 
-        public bool DeleteAccount(uint accountId)
+        public bool DeleteAccount(int accountId)
         {
-            try
-            {
-                AccountEntity account = _context.Accounts.Find(accountId);
-                if (account == null)
-                {
-                    throw new KeyNotFoundException($"Account with ID {accountId} not found.");
-                }
+            AccountEntity? account = _context.Accounts.Find(accountId);
 
-                _context.Accounts.Remove(account);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (KeyNotFoundException ex)
+            if (account == null)
             {
-                Console.WriteLine($"Error deleting account: {ex.Message}");
-                return false;
+                throw new KeyNotFoundException($"Account with ID {accountId} not found.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting account: {ex.Message}");
-                return false;
-            }
+
+            _context.Accounts.Remove(account);
+            _context.SaveChanges();
+            return true;
         }
 
-        public List<AccountEntity> GetAccountsByPerson(uint personId)
+        public List<AccountEntity> GetAccountsByPerson(int personId)
         {
-            try
-            {
-                return _context.Accounts
-                    .Include(a => a.Bank)
-                    .Include(a => a.CreditCards)
-                    .Where(a => a.AccountOwner.PersonId == personId)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving accounts for person ID {personId}: {ex.Message}");
-                return new List<AccountEntity>();
-            }
+            List<AccountEntity> accounts = _context.Accounts
+                .Include(a => a.Bank)
+                .Include(a => a.CreditCards)
+                .Where(a => a.AccountOwner.PersonId == personId)
+                .ToList();
+
+            return accounts;
         }
 
         public List<AccountEntity> GetAllAccounts()
         {
-            try
-            {
-                return _context.Accounts
-                    .Include(a => a.Bank)
-                    .Include(a => a.CreditCards)
-                    .Include(a => a.AccountOwner)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving all accounts: {ex.Message}");
-                return new List<AccountEntity>();
-            }
+            List<AccountEntity> accounts = _context.Accounts
+                .Include(a => a.Bank)
+                .Include(a => a.CreditCards)
+                .Include(a => a.AccountOwner)
+                .ToList();
+
+            return accounts;
+        }
+
+        public AccountEntity UpdateAccount(AccountEntity account)
+        {
+            AccountEntity updatedAccount = _context.Accounts.Update(account).Entity;
+            _context.SaveChanges();
+            return updatedAccount;
         }
     }
 }

@@ -172,16 +172,5 @@ namespace HæveautomatenTests.Tests.Controllers
             // Assert
             _atmControllerMock.Verify(atm => atm.DeleteAutomatedTellerMachine(), Times.Once);
         }
-
-        [TestMethod]
-        public void HandleAdminMenu_WithExitInput_DoesNotThrowException()
-        {
-            // Arrange
-            string input = "0";
-            _baseViewMock.Setup(view => view.GetUserInput()).Returns(input);
-
-            // Act & Assert
-            _adminController.HandleAdminMenuDisplay();
-        }
     }
 }

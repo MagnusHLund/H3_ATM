@@ -16,58 +16,33 @@ namespace Hæveautomaten.Repositories
 
         public bool CreatePerson(PersonEntity person)
         {
-            try
-            {
-                _context.Persons.Add(person);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating person: {ex.Message}");
-                return false;
-            }
+            _context.Persons.Add(person);
+            _context.SaveChanges();
+            return true;
         }
 
-        public bool DeletePerson(uint personId)
+        public bool DeletePerson(int personId)
         {
-            try
-            {
-                PersonEntity person = _context.Persons.Find(personId);
-                if (person == null)
-                {
-                    throw new KeyNotFoundException($"Person with ID {personId} not found.");
-                }
 
-                _context.Persons.Remove(person);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (KeyNotFoundException ex)
+            PersonEntity person = _context.Persons.Find(personId);
+
+            if (person == null)
             {
-                Console.WriteLine($"Error deleting person: {ex.Message}");
-                return false;
+                throw new KeyNotFoundException($"Person with ID {personId} not found.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting person: {ex.Message}");
-                return false;
-            }
+
+            _context.Persons.Remove(person);
+            _context.SaveChanges();
+            return true;
         }
 
         public List<PersonEntity> GetAllPeople()
         {
-            try
-            {
-                return _context.Persons
-                    .Include(p => p.Accounts)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving people: {ex.Message}");
-                return new List<PersonEntity>();
-            }
+            List<PersonEntity> people = _context.Persons
+                .Include(p => p.Accounts)
+                .ToList();
+
+            return people;
         }
     }
 }

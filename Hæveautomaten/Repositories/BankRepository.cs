@@ -16,59 +16,33 @@ namespace Hæveautomaten.Repositories
 
         public bool CreateBank(BankEntity bank)
         {
-            try
-            {
-                _context.Banks.Add(bank);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error creating bank: {ex.Message}");
-                return false;
-            }
+            _context.Banks.Add(bank);
+            _context.SaveChanges();
+            return true;
         }
 
-        public bool DeleteBank(uint bankId)
+        public bool DeleteBank(int bankId)
         {
-            try
-            {
-                BankEntity bank = _context.Banks.Find(bankId);
-                if (bank == null)
-                {
-                    throw new KeyNotFoundException($"Bank with ID {bankId} not found.");
-                }
+            BankEntity bank = _context.Banks.Find(bankId);
 
-                _context.Banks.Remove(bank);
-                _context.SaveChanges();
-                return true;
-            }
-            catch (KeyNotFoundException ex)
+            if (bank == null)
             {
-                Console.WriteLine($"Error deleting bank: {ex.Message}");
-                return false;
+                throw new KeyNotFoundException($"Bank with ID {bankId} not found.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting bank: {ex.Message}");
-                return false;
-            }
+
+            _context.Banks.Remove(bank);
+            _context.SaveChanges();
+            return true;
         }
 
         public List<BankEntity> GetAllBanks()
         {
-            try
-            {
-                return _context.Banks
-                    .Include(b => b.Accounts)
-                    .Include(b => b.AutomatedTellerMachines)
-                    .ToList();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error retrieving banks: {ex.Message}");
-                return new List<BankEntity>();
-            }
+            List<BankEntity> banks = _context.Banks
+                .Include(b => b.Accounts)
+                .Include(b => b.AutomatedTellerMachines)
+                .ToList();
+
+            return banks;
         }
     }
 }

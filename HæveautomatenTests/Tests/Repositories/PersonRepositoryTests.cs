@@ -2,22 +2,32 @@ using Hæveautomaten.Data;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Repositories;
 using HæveautomatenTests.Factories;
-using HæveautomatenTests.Utils;
-using Moq;
+using Microsoft.EntityFrameworkCore;
 
 namespace HæveautomatenTests.Tests.Repositories
 {
     [TestClass]
     public class PersonRepositoryTests
     {
-        private Mock<HæveautomatenDbContext> _dbContextMock;
+        private HæveautomatenDbContext _dbContext;
         private PersonRepository _personRepository;
 
         [TestInitialize]
         public void Setup()
         {
-            _dbContextMock = new Mock<HæveautomatenDbContext>();
-            _personRepository = new PersonRepository(_dbContextMock.Object);
+            var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
+                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .Options;
+
+            _dbContext = new HæveautomatenDbContext(options);
+            _personRepository = new PersonRepository(_dbContext);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _dbContext.Database.EnsureDeleted();
+            _dbContext.Dispose();
         }
 
         [TestMethod]
@@ -31,6 +41,14 @@ namespace HæveautomatenTests.Tests.Repositories
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(1, _dbContext.Persons.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void CreatePerson_WithNullPerson_ThrowsNullReferenceException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<NullReferenceException>(() => _personRepository.CreatePerson(null));
         }
 
         [TestMethod]
@@ -38,13 +56,22 @@ namespace HæveautomatenTests.Tests.Repositories
         {
             // Arrange
             PersonEntity person = PersonFactory.CreatePerson();
-            _dbContextMock.Setup(db => db.Persons.Find(person.PersonId)).Returns(person);
+            _dbContext.Persons.Add(person);
+            _dbContext.SaveChanges();
 
             // Act
             bool result = _personRepository.DeletePerson(person.PersonId);
 
             // Assert
             Assert.IsTrue(result);
+            Assert.AreEqual(0, _dbContext.Persons.CountAsync().Result);
+        }
+
+        [TestMethod]
+        public void DeletePerson_WithNonExistingPerson_ThrowsKeyNotFoundException()
+        {
+            // Act & Assert
+            Assert.ThrowsException<KeyNotFoundException>(() => _personRepository.DeletePerson(999));
         }
 
         [TestMethod]
@@ -56,13 +83,36 @@ namespace HæveautomatenTests.Tests.Repositories
                 PersonFactory.CreatePerson(),
                 PersonFactory.CreatePerson()
             };
-            _dbContextMock.Setup(db => db.Persons).Returns(MockUtils.CreateMockDbSet(people).Object);
+            _dbContext.Persons.AddRange(people);
+            _dbContext.SaveChanges();
 
             // Act
             List<PersonEntity> result = _personRepository.GetAllPeople();
 
             // Assert
             Assert.AreEqual(people.Count, result.Count);
+        }
+
+        [TestMethod]
+        public void GetAllPeople_WithNoPeople_ReturnsEmptyList()
+        {
+            // Act
+            List<PersonEntity> result = _personRepository.GetAllPeople();
+
+            // Assert
+            Assert.AreEqual(0, result.Count);
+        }
+
+        [TestMethod]
+        public void CreatePerson_WithDuplicatePerson_ThrowsArgumentException()
+        {
+            // Arrange
+            PersonEntity person = PersonFactory.CreatePerson();
+            _dbContext.Persons.Add(person);
+            _dbContext.SaveChanges();
+
+            // Act & Assert
+            Assert.ThrowsException<ArgumentException>(() => _personRepository.CreatePerson(person));
         }
     }
 }

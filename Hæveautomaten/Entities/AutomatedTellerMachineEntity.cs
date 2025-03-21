@@ -7,14 +7,14 @@ namespace Hæveautomaten.Entities
     public class AutomatedTellerMachineEntity
     {
         [Key]
-        public uint AutomatedTellerMachineId { get; set; }
+        public int AutomatedTellerMachineId { get; set; }
 
         [Required]
         public uint MinimumExchangeAmount { get; set; }
 
         // Navigation property
         [ForeignKey("bank")]
-        public uint BankId { get; set; }
+        public int BankId { get; set; }
 
         public BankEntity Bank { get; set; }
 

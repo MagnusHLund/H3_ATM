@@ -15,12 +15,8 @@ namespace Hæveautomaten.Views
             return GetUserInput();
         }
 
-        public void CustomOutput(string output, bool clearConsole)
+        public void CustomOutput(string output)
         {
-            if (clearConsole)
-            {
-                Console.Clear();
-            }
 
             Console.WriteLine(output);
         }

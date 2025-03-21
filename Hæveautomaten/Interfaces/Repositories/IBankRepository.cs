@@ -5,7 +5,7 @@ namespace Hæveautomaten.Interfaces.Repositories
     public interface IBankRepository
     {
         bool CreateBank(BankEntity bank);
-        bool DeleteBank(uint bankId);
+        bool DeleteBank(int bankId);
         List<BankEntity> GetAllBanks();
     }
 }

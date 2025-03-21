@@ -42,7 +42,7 @@ namespace HæveautomatenTests.Tests.Controllers
             PersonEntity person = PersonFactory.CreatePerson();
             AccountEntity account = AccountFactory.CreateAccount(person, bank, balanceInMinorUnits: balance);
 
-            _mockBaseView.Setup(view => view.GetUserInputWithTitle("Enter balance: ")).Returns(balance.ToString());
+            _mockBaseView.Setup(view => view.GetUserInputWithTitle("Enter balance:")).Returns(balance.ToString());
             _mockBankController.Setup(b => b.SelectBank()).Returns(bank);
             _mockPersonController.Setup(p => p.SelectPerson()).Returns(person);
             _mockAccountRepository.Setup(r => r.CreateAccount(It.IsAny<AccountEntity>())).Returns(true);
@@ -109,8 +109,11 @@ namespace HæveautomatenTests.Tests.Controllers
             _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(new List<AccountEntity> { account });
             _mockBaseView.Setup(view => view.GetUserInput()).Returns("1");
 
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _accountController.DeleteAccount());
+            // Act
+            bool success = _accountController.DeleteAccount();
+
+            // Assert
+            Assert.IsFalse(success);
         }
 
         [TestMethod]

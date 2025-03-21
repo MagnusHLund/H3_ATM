@@ -49,7 +49,7 @@ namespace Hæveautomaten.Controllers
                     _personController.DeletePerson();
                     break;
                 case "3":
-                    _creditCardController.DeleteCreditCard();
+                    _creditCardController.CreateCreditCard();
                     break;
                 case "4":
                     _creditCardController.DeleteCreditCard();
@@ -71,8 +71,6 @@ namespace Hæveautomaten.Controllers
                     break;
                 case "10":
                     _automatedTellerMachineController.DeleteAutomatedTellerMachine();
-                    break;
-                case "0":
                     break;
                 default:
                     throw new InvalidOperationException("Invalid input");

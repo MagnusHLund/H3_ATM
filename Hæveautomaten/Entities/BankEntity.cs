@@ -5,7 +5,7 @@ namespace Hæveautomaten.Entities
     public class BankEntity
     {
         [Key]
-        public uint BankId { get; set; }
+        public int BankId { get; set; }
 
         [Required]
         public string BankName { get; set; }

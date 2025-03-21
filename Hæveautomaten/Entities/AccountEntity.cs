@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hæveautomaten.Entities
 {
     public class AccountEntity
     {
         [Key]
-        public uint AccountId { get; set; }
+        public int AccountId { get; set; }
 
         public long BalanceInMinorUnits { get; set; } = 0;
 
@@ -13,9 +14,11 @@ namespace Hæveautomaten.Entities
         public List<CreditCardEntity> CreditCards { get; set; } = new List<CreditCardEntity>();
 
         // Navigation property
+        [ForeignKey("BankId")]
         public BankEntity Bank { get; set; }
 
         // Navigation property
+        [ForeignKey("AccountOwnerPersonId")]
         public PersonEntity AccountOwner { get; set; }
 
         public AccountEntity(long balanceInMinorUnits = 0, BankEntity bank = null, PersonEntity accountOwner = null, List<CreditCardEntity> creditCards = null)

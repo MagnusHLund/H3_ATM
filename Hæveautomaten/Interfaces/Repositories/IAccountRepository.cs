@@ -5,8 +5,9 @@ namespace Hæveautomaten.Interfaces.Repositories
     public interface IAccountRepository
     {
         bool CreateAccount(AccountEntity account);
-        bool DeleteAccount(uint accountId);
-        List<AccountEntity> GetAccountsByPerson(uint personId);
+        bool DeleteAccount(int accountId);
+        List<AccountEntity> GetAccountsByPerson(int personId);
         List<AccountEntity> GetAllAccounts();
+        AccountEntity UpdateAccount(AccountEntity account);
     }
 }

@@ -5,7 +5,7 @@ namespace Hæveautomaten.Entities
     public class PersonEntity
     {
         [Key]
-        public uint PersonId { get; set; }
+        public int PersonId { get; set; }
 
         [Required]
         public string FirstName { get; set; }
@@ -39,7 +39,7 @@ namespace Hæveautomaten.Entities
                 throw new ArgumentException("First name and last name must not be empty");
             }
 
-            return MiddleName == null
+            return string.IsNullOrEmpty(MiddleName)
                 ? $"{FirstName} {LastName}"
                 : $"{FirstName} {MiddleName} {LastName}";
         }

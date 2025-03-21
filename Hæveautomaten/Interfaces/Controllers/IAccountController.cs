@@ -10,5 +10,6 @@ namespace Hæveautomaten.Interfaces.Controllers
         AccountEntity SelectAccount(List<AccountEntity> accounts = null);
         AccountEntity GetAccountByCard(CreditCardEntity creditCard);
         List<AccountEntity> GetAllAccounts();
+        AccountEntity UpdateAccount(AccountEntity account);
     }
 }

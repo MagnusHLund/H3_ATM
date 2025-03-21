@@ -13,6 +13,7 @@ namespace HæveautomatenTests.Tests.Controllers
     {
         private Mock<IAutomatedTellerMachineRepository> _atmRepositoryMock;
         private Mock<ICreditCardController> _creditCardControllerMock;
+        private Mock<IAccountController> _accountControllerMock;
         private Mock<IBankController> _bankControllerMock;
         private Mock<IBaseView> _baseViewMock;
         private AutomatedTellerMachineController _atmController;
@@ -22,6 +23,7 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             _atmRepositoryMock = new Mock<IAutomatedTellerMachineRepository>();
             _creditCardControllerMock = new Mock<ICreditCardController>();
+            _accountControllerMock = new Mock<IAccountController>();
             _bankControllerMock = new Mock<IBankController>();
             _baseViewMock = new Mock<IBaseView>();
 
@@ -29,6 +31,7 @@ namespace HæveautomatenTests.Tests.Controllers
                 _atmRepositoryMock.Object,
                 _bankControllerMock.Object,
                 _creditCardControllerMock.Object,
+                _accountControllerMock.Object,
                 _baseViewMock.Object
             );
         }
@@ -39,8 +42,6 @@ namespace HæveautomatenTests.Tests.Controllers
             // Arrange
             BankEntity bank = BankFactory.CreateBank();
             uint minimumExchangeAmount = 100;
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank, minimumExchangeAmount);
-
             _bankControllerMock.Setup(b => b.SelectBank()).Returns(bank);
             _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the minimum exchange amount: ")).Returns(minimumExchangeAmount.ToString());
             _atmRepositoryMock.Setup(r => r.CreateAutomatedTellerMachine(It.IsAny<AutomatedTellerMachineEntity>())).Returns(true);
@@ -103,94 +104,73 @@ namespace HæveautomatenTests.Tests.Controllers
         }
 
         [TestMethod]
-        public void SwitchAutomatedTellerMachine_WithMultipleATMs_ReturnsSelectedATM()
-        {
-            // Arrange
-            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>
-            {
-                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(),
-                AutomatedTellerMachineFactory.CreateAutomatedTellerMachine()
-            };
-            _atmRepositoryMock.Setup(r => r.GetAllAutomatedTellerMachines()).Returns(atms);
-            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
-            _baseViewMock.Setup(view => view.GetUserInput()).Returns("1");
-
-            // Act
-            AutomatedTellerMachineEntity selectedATM = _atmController.SwitchAutomatedTellerMachine(atms);
-
-            // Assert
-            Assert.IsNotNull(selectedATM);
-            Assert.AreEqual(atms[0], selectedATM); // Assuming the first ATM is selected
-        }
-
-        [TestMethod]
-        public void SwitchAutomatedTellerMachine_WithEmptyATMList_ThrowsException()
-        {
-            // Arrange
-            List<AutomatedTellerMachineEntity> atms = new List<AutomatedTellerMachineEntity>();
-
-            // Act & Assert
-            Assert.ThrowsException<InvalidOperationException>(() => _atmController.SwitchAutomatedTellerMachine(atms));
-        }
-
-
-        [TestMethod]
-        public void DepositMoney_WithValidATMAndCard_UpdatesBalance()
+        public void DepositMoney_WithValidATMAndAccount_UpdatesBalance()
         {
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
+            AccountEntity account = AccountFactory.CreateAccount();
+            long depositAmount = 500;
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the amount you want to deposit:")).Returns(depositAmount.ToString());
+            _accountControllerMock.Setup(a => a.UpdateAccount(It.IsAny<AccountEntity>())).Returns(account);
 
             // Act
-            _atmController.DepositMoney(atm, creditCard);
+            long updatedBalance = _atmController.DepositMoney(atm, account);
 
             // Assert
-            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never);
+            Assert.AreEqual(account.BalanceInMinorUnits, updatedBalance);
         }
 
         [TestMethod]
-        public void DepositMoney_WithNullATM_ThrowsArgumentNullException()
-        {
-            // Arrange
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
-
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmController.DepositMoney(null, creditCard));
-        }
-
-        [TestMethod]
-        public void WithdrawMoney_WithValidATMAndCard_UpdatesBalance()
+        public void DepositMoney_WithAmountBelowMinimum_ThrowsInvalidOperationException()
         {
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
-
-            // Act
-            _atmController.WithdrawMoney(atm, creditCard);
-
-            // Assert
-            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never);
-        }
-
-        [TestMethod]
-        public void WithdrawMoney_WithNullATM_ThrowsArgumentNullException()
-        {
-            // Arrange
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
+            AccountEntity account = AccountFactory.CreateAccount();
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the amount you want to deposit:")).Returns("1");
 
             // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmController.WithdrawMoney(null, creditCard));
+            Assert.ThrowsException<InvalidOperationException>(() => _atmController.DepositMoney(atm, account));
         }
 
         [TestMethod]
-        public void WithdrawMoney_WithNullCreditCard_ThrowsArgumentNullException()
+        public void WithdrawMoney_WithValidATMAndAccount_UpdatesBalance()
         {
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
+            AccountEntity account = AccountFactory.CreateAccount();
+            long withdrawAmount = 500;
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the amount you want to withdraw:")).Returns(withdrawAmount.ToString());
+            _accountControllerMock.Setup(a => a.UpdateAccount(It.IsAny<AccountEntity>())).Returns(account);
 
-            // Act & Assert
-            Assert.ThrowsException<ArgumentNullException>(() => _atmController.WithdrawMoney(atm, null));
+            // Act
+            long updatedBalance = _atmController.WithdrawMoney(atm, account);
+
+            // Assert
+            Assert.AreEqual(account.BalanceInMinorUnits, updatedBalance);
         }
 
+        [TestMethod]
+        public void WithdrawMoney_WithAmountAboveBalance_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
+            AccountEntity account = AccountFactory.CreateAccount();
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the amount you want to withdraw:")).Returns("1000000");
+
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => _atmController.WithdrawMoney(atm, account));
+        }
+
+        [TestMethod]
+        public void WithdrawMoney_WithAmountBelowMinimum_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
+            AccountEntity account = AccountFactory.CreateAccount();
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the amount you want to withdraw:")).Returns("1");
+
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => _atmController.WithdrawMoney(atm, account));
+        }
     }
 }

@@ -3,6 +3,7 @@ using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
+using System.Security.Authentication;
 
 namespace Hæveautomaten.Controllers
 {
@@ -18,36 +19,25 @@ namespace Hæveautomaten.Controllers
             IAutomatedTellerMachineRepository automatedTellerMachineRepository,
             IBankController bankController,
             ICreditCardController creditCardController,
+            IAccountController accountController,
             IBaseView baseView
         )
         {
             _automatedTellerMachineRepository = automatedTellerMachineRepository;
             _bankController = bankController;
             _creditCardController = creditCardController;
+            _accountController = accountController;
             _baseView = baseView;
         }
 
         public void HandleAutomatedTellerMachineMenu()
         {
-            // Call GetAllAutomatedTellerMachines() and store the result in a variable
-            // Store variable for which atm is selected. The first is selected by default.
-
-            // Show automated teller machine menu and await user input
-            // If user input is 1, call UseAutomatedTellerMachine()
-            // If user input is 2, call SwitchAutomatedTellerMachine()
-            // If user input is 0, return to main menu
-
             AutomatedTellerMachineEntity atm = SelectAutomatedTellerMachine();
 
-            while (true)
-            {
-                CreditCardEntity creditCard = _creditCardController.SelectCreditCard();
-                AccountEntity account = _accountController.GetAccountByCard(creditCard);
+            CreditCardEntity creditCard = _creditCardController.SelectCreditCard();
+            AccountEntity account = _accountController.GetAccountByCard(creditCard);
 
-                string bankName = atm.Bank.ToString();
-
-                AutomatedTellerMachineView.AutomatedTellerMachineMainMenu(bankName);
-            }
+            UseAutomatedTellerMachine(atm, creditCard, account);
         }
 
         public bool CreateAutomatedTellerMachine()
@@ -72,17 +62,35 @@ namespace Hæveautomaten.Controllers
             return success;
         }
 
-        public void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm)
+        public void UseAutomatedTellerMachine(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard, AccountEntity account)
         {
-            // Use an automated teller machine
-        }
+            string userInput = _baseView.GetUserInputWithTitle("Enter pin code:");
 
-        public AutomatedTellerMachineEntity SwitchAutomatedTellerMachine(List<AutomatedTellerMachineEntity> atms)
-        {
-            // Switch to another automated teller machine
-            // Select an atm from the list and return it
+            if (userInput == creditCard.PinCode.ToString())
+            {
+                long accountBalance = account.BalanceInMinorUnits / 100;
+                AutomatedTellerMachineView.AutomatedTellerMachineManagementMenu(accountBalance.ToString());
 
-            throw new NotImplementedException();
+                string input = _baseView.GetUserInput();
+
+                switch (input)
+                {
+                    case "1":
+                        WithdrawMoney(atm, account);
+                        break;
+                    case "2":
+                        DepositMoney(atm, account);
+                        break;
+                    default:
+                        _baseView.CustomOutput("Invalid input");
+                        break;
+                }
+            }
+            else
+            {
+                _baseView.CustomOutput("Invalid pin code");
+                throw new AuthenticationException("Invalid pin code");
+            }
         }
 
         public List<AutomatedTellerMachineEntity> GetAllAutomatedTellerMachines()
@@ -91,14 +99,40 @@ namespace Hæveautomaten.Controllers
             return atms;
         }
 
-        public void DepositMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard)
+        public long DepositMoney(AutomatedTellerMachineEntity atm, AccountEntity accountEntity)
         {
+            long amountToDeposit = long.Parse(_baseView.GetUserInputWithTitle("Enter the amount you want to deposit:"));
 
+            if (amountToDeposit < atm.MinimumExchangeAmount)
+            {
+                throw new InvalidOperationException("The amount is below the minimum exchange amount");
+            }
+
+            accountEntity.BalanceInMinorUnits += amountToDeposit;
+
+            AccountEntity updatedAccount = _accountController.UpdateAccount(accountEntity);
+            return updatedAccount.BalanceInMinorUnits;
         }
 
-        public void WithdrawMoney(AutomatedTellerMachineEntity atm, CreditCardEntity creditCard)
+        public long WithdrawMoney(AutomatedTellerMachineEntity atm, AccountEntity accountEntity)
         {
-            // Deposit money into the atm
+            long amountToWithdraw = long.Parse(_baseView.GetUserInputWithTitle("Enter the amount you want to withdraw:"));
+
+            if (amountToWithdraw < atm.MinimumExchangeAmount)
+            {
+                throw new InvalidOperationException("The amount is below the minimum exchange amount");
+            }
+
+            if (amountToWithdraw > accountEntity.BalanceInMinorUnits)
+            {
+                throw new InvalidOperationException("The amount is above the account balance");
+            }
+
+            accountEntity.BalanceInMinorUnits -= amountToWithdraw;
+
+
+            AccountEntity updatedAccount = _accountController.UpdateAccount(accountEntity);
+            return updatedAccount.BalanceInMinorUnits;
         }
 
         public AutomatedTellerMachineEntity SelectAutomatedTellerMachine()
