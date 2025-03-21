@@ -2,6 +2,7 @@ using Moq;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 
@@ -13,6 +14,7 @@ namespace HæveautomatenTests.Tests.Controllers
         private Mock<IAccountRepository> _mockAccountRepository;
         private Mock<IBankController> _mockBankController;
         private Mock<IPersonController> _mockPersonController;
+        private Mock<IBaseView> _mockBaseView;
         private AccountController _accountController;
 
         [TestInitialize]
@@ -21,11 +23,13 @@ namespace HæveautomatenTests.Tests.Controllers
             _mockAccountRepository = new Mock<IAccountRepository>();
             _mockBankController = new Mock<IBankController>();
             _mockPersonController = new Mock<IPersonController>();
+            _mockBaseView = new Mock<IBaseView>();
 
             _accountController = new AccountController(
                 _mockAccountRepository.Object,
                 _mockBankController.Object,
-                _mockPersonController.Object
+                _mockPersonController.Object,
+                _mockBaseView.Object
             );
         }
 
@@ -38,6 +42,7 @@ namespace HæveautomatenTests.Tests.Controllers
             PersonEntity person = PersonFactory.CreatePerson();
             AccountEntity account = AccountFactory.CreateAccount(person, bank, balanceInMinorUnits: balance);
 
+            _mockBaseView.Setup(view => view.GetUserInputWithTitle("Enter balance: ")).Returns(balance.ToString());
             _mockBankController.Setup(b => b.SelectBank()).Returns(bank);
             _mockPersonController.Setup(p => p.SelectPerson()).Returns(person);
             _mockAccountRepository.Setup(r => r.CreateAccount(It.IsAny<AccountEntity>())).Returns(true);
@@ -58,6 +63,7 @@ namespace HæveautomatenTests.Tests.Controllers
         public void CreateAccount_WithoutBank_ThrowsArgumentNullException()
         {
             // Arrange
+            _mockBaseView.Setup(view => view.GetUserInputWithTitle("Enter balance: ")).Returns("10000");
             _mockBankController.Setup(b => b.SelectBank()).Returns((BankEntity)null);
 
             // Act & Assert
@@ -69,6 +75,7 @@ namespace HæveautomatenTests.Tests.Controllers
         {
             // Arrange
             BankEntity bank = BankFactory.CreateBank();
+            _mockBaseView.Setup(view => view.GetUserInputWithTitle("Enter balance: ")).Returns("10000");
             _mockBankController.Setup(b => b.SelectBank()).Returns(bank);
             _mockPersonController.Setup(p => p.SelectPerson()).Returns((PersonEntity)null);
 
@@ -83,6 +90,7 @@ namespace HæveautomatenTests.Tests.Controllers
             AccountEntity account = AccountFactory.CreateAccount();
             _mockAccountRepository.Setup(r => r.DeleteAccount(account.AccountId)).Returns(true);
             _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(new List<AccountEntity> { account });
+            _mockBaseView.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act
             bool result = _accountController.DeleteAccount();
@@ -99,6 +107,7 @@ namespace HæveautomatenTests.Tests.Controllers
             AccountEntity account = AccountFactory.CreateAccount();
             _mockAccountRepository.Setup(r => r.DeleteAccount(account.AccountId)).Returns(false);
             _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(new List<AccountEntity> { account });
+            _mockBaseView.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act & Assert
             Assert.ThrowsException<KeyNotFoundException>(() => _accountController.DeleteAccount());

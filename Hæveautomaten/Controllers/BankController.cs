@@ -1,5 +1,5 @@
-using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 
@@ -8,19 +8,34 @@ namespace Hæveautomaten.Controllers
     public class BankController : IBankController
     {
         private readonly IBankRepository _bankRepository;
+        private readonly IBaseView _baseView;
 
-        public BankController(IBankRepository bankRepository)
+        public BankController(
+            IBankRepository bankRepository,
+            IBaseView baseView
+        )
         {
             _bankRepository = bankRepository;
+            _baseView = baseView;
         }
 
         public bool CreateBank()
         {
-            string bankName = CustomView.GetUserInputWithTitle("Enter the bank name: ");
+            string bankName = _baseView.GetUserInputWithTitle("Enter the bank name: ");
 
             BankEntity bank = new BankEntity(
                 bankName: bankName
             );
+
+            if (bank.BankName == null)
+            {
+                throw new ArgumentNullException("Bank name cannot be null.");
+            }
+
+            if (bank.BankName == "")
+            {
+                throw new ArgumentException("Bank name cannot be empty.");
+            }
 
             bool success = _bankRepository.CreateBank(bank);
             return success;
@@ -39,9 +54,9 @@ namespace Hæveautomaten.Controllers
             List<BankEntity> banks = GetAllBanks();
             string[] bankIdentifiers = banks.Select(bank => bank.ToString()).ToArray();
 
-            CustomView.CustomMenu(bankIdentifiers);
+            _baseView.CustomMenu(bankIdentifiers);
 
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
             int bankIndex = int.Parse(userInput) - 1;
 
             return banks[bankIndex];

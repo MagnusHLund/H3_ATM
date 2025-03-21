@@ -29,6 +29,16 @@ namespace Hæveautomaten.Entities
 
         public override string ToString()
         {
+            if (FirstName == null || LastName == null)
+            {
+                throw new NullReferenceException("First name and last name must not be null");
+            }
+
+            if (FirstName == "" || LastName == "")
+            {
+                throw new ArgumentException("First name and last name must not be empty");
+            }
+
             return MiddleName == null
                 ? $"{FirstName} {LastName}"
                 : $"{FirstName} {MiddleName} {LastName}";

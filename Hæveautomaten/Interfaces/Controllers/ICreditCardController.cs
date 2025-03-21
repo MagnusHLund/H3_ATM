@@ -9,5 +9,6 @@ namespace Hæveautomaten.Interfaces.Controllers
         CreditCardEntity SelectCreditCard();
         List<CreditCardEntity> GetAllCreditCards();
         bool IsCreditCardValid(CreditCardEntity creditCard);
+        DateTime ConvertStringToDateTime(string expirationDate);
     }
 }

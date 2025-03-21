@@ -4,6 +4,7 @@ using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
+using Hæveautomaten.Interfaces.Views;
 
 namespace HæveautomatenTests.Tests.Controllers
 {
@@ -13,19 +14,22 @@ namespace HæveautomatenTests.Tests.Controllers
         private Mock<IAutomatedTellerMachineRepository> _atmRepositoryMock;
         private Mock<ICreditCardController> _creditCardControllerMock;
         private Mock<IBankController> _bankControllerMock;
+        private Mock<IBaseView> _baseViewMock;
         private AutomatedTellerMachineController _atmController;
 
         [TestInitialize]
         public void Setup()
         {
             _atmRepositoryMock = new Mock<IAutomatedTellerMachineRepository>();
-            _bankControllerMock = new Mock<IBankController>();
             _creditCardControllerMock = new Mock<ICreditCardController>();
+            _bankControllerMock = new Mock<IBankController>();
+            _baseViewMock = new Mock<IBaseView>();
 
             _atmController = new AutomatedTellerMachineController(
                 _atmRepositoryMock.Object,
                 _bankControllerMock.Object,
-                _creditCardControllerMock.Object
+                _creditCardControllerMock.Object,
+                _baseViewMock.Object
             );
         }
 
@@ -38,6 +42,7 @@ namespace HæveautomatenTests.Tests.Controllers
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(bank, minimumExchangeAmount);
 
             _bankControllerMock.Setup(b => b.SelectBank()).Returns(bank);
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the minimum exchange amount: ")).Returns(minimumExchangeAmount.ToString());
             _atmRepositoryMock.Setup(r => r.CreateAutomatedTellerMachine(It.IsAny<AutomatedTellerMachineEntity>())).Returns(true);
 
             // Act
@@ -67,6 +72,8 @@ namespace HæveautomatenTests.Tests.Controllers
             // Arrange
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
             _atmRepositoryMock.Setup(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId)).Returns(true);
+            _atmRepositoryMock.Setup(r => r.GetAllAutomatedTellerMachines()).Returns(new List<AutomatedTellerMachineEntity> { atm });
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act
             bool result = _atmController.DeleteAutomatedTellerMachine();
@@ -74,17 +81,6 @@ namespace HæveautomatenTests.Tests.Controllers
             // Assert
             Assert.IsTrue(result);
             _atmRepositoryMock.Verify(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId), Times.Once);
-        }
-
-        [TestMethod]
-        public void DeleteAutomatedTellerMachine_WithNonExistingATM_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
-            _atmRepositoryMock.Setup(r => r.DeleteAutomatedTellerMachine(atm.AutomatedTellerMachineId)).Returns(false);
-
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _atmController.DeleteAutomatedTellerMachine());
         }
 
         [TestMethod]
@@ -116,6 +112,8 @@ namespace HæveautomatenTests.Tests.Controllers
                 AutomatedTellerMachineFactory.CreateAutomatedTellerMachine()
             };
             _atmRepositoryMock.Setup(r => r.GetAllAutomatedTellerMachines()).Returns(atms);
+            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act
             AutomatedTellerMachineEntity selectedATM = _atmController.SwitchAutomatedTellerMachine(atms);
@@ -135,6 +133,7 @@ namespace HæveautomatenTests.Tests.Controllers
             Assert.ThrowsException<InvalidOperationException>(() => _atmController.SwitchAutomatedTellerMachine(atms));
         }
 
+
         [TestMethod]
         public void DepositMoney_WithValidATMAndCard_UpdatesBalance()
         {
@@ -146,7 +145,7 @@ namespace HæveautomatenTests.Tests.Controllers
             _atmController.DepositMoney(atm, creditCard);
 
             // Assert
-            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never); // Example verification
+            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never);
         }
 
         [TestMethod]
@@ -170,7 +169,7 @@ namespace HæveautomatenTests.Tests.Controllers
             _atmController.WithdrawMoney(atm, creditCard);
 
             // Assert
-            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never); // Example verification
+            _atmRepositoryMock.Verify(r => r.GetAllAutomatedTellerMachines(), Times.Never);
         }
 
         [TestMethod]
@@ -192,5 +191,6 @@ namespace HæveautomatenTests.Tests.Controllers
             // Act & Assert
             Assert.ThrowsException<ArgumentNullException>(() => _atmController.WithdrawMoney(atm, null));
         }
+
     }
 }

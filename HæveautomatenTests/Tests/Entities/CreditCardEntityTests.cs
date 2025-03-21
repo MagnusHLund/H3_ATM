@@ -19,10 +19,10 @@ namespace HæveautomatenTests.Tests.Entities
             AccountEntity account = AccountFactory.CreateAccount();
 
             // Act
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
+            CreditCardEntity creditCard = new CreditCardEntity(
                 cardNumber: cardNumber,
-                cardHolder: PersonFactory.CreatePerson(),
-                associatedAccount: account,
+                cardHolderName: cardHolderName,
+                account: account,
                 expirationDate: expirationDate,
                 cvv: cvv,
                 pinCode: pinCode,
@@ -40,19 +40,6 @@ namespace HæveautomatenTests.Tests.Entities
         }
 
         [TestMethod]
-        public void Constructor_WithDefaultParameters_CreatesCreditCardEntityWithDefaults()
-        {
-            // Act
-            CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard();
-
-            // Assert
-            Assert.IsNotNull(creditCard.CardHolderName);
-            Assert.IsNotNull(creditCard.Account);
-            Assert.IsFalse(creditCard.IsBlocked);
-            Assert.IsTrue(creditCard.ExpirationDate > DateTime.Now);
-        }
-
-        [TestMethod]
         public void ToString_ReturnsCorrectStringRepresentation()
         {
             // Arrange
@@ -60,7 +47,7 @@ namespace HæveautomatenTests.Tests.Entities
             string cardHolderName = "John Doe";
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
                 cardNumber: cardNumber,
-                cardHolder: PersonFactory.CreatePerson(firstName: "John", lastName: "Doe")
+                cardHolder: PersonFactory.CreatePerson(firstName: "John", lastName: "Doe", middleName: null)
             );
 
             // Act

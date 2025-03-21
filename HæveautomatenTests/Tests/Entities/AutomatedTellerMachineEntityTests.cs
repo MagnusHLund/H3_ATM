@@ -1,5 +1,4 @@
 using Hæveautomaten.Entities;
-using HæveautomatenTests.Factories;
 
 namespace HæveautomatenTests.Tests.Entities
 {
@@ -10,11 +9,14 @@ namespace HæveautomatenTests.Tests.Entities
         public void Constructor_WithValidParameters_CreatesAutomatedTellerMachineEntity()
         {
             // Arrange
-            uint minimumExchangeAmount = 100;
-            BankEntity bank = BankFactory.CreateBank();
+            uint minimumExchangeAmount = 10;
+            BankEntity bank = new BankEntity("Test Bank");
 
             // Act
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(
+                minimumExchangeAmount: minimumExchangeAmount,
+                bank: bank
+            );
 
             // Assert
             Assert.AreEqual(minimumExchangeAmount, atm.MinimumExchangeAmount);
@@ -29,7 +31,10 @@ namespace HæveautomatenTests.Tests.Entities
             uint minimumExchangeAmount = 100;
 
             // Act
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(associatedBank: null);
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(
+                minimumExchangeAmount: minimumExchangeAmount,
+                bank: null
+            );
 
             // Assert
             Assert.AreEqual(minimumExchangeAmount, atm.MinimumExchangeAmount);
@@ -41,7 +46,10 @@ namespace HæveautomatenTests.Tests.Entities
         {
             // Arrange
             uint minimumExchangeAmount = 100;
-            AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine(minimumExchangeAmount: minimumExchangeAmount);
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(
+                minimumExchangeAmount: minimumExchangeAmount,
+                bank: null
+            );
 
             // Act
             string result = atm.ToString();

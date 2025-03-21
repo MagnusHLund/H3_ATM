@@ -1,7 +1,33 @@
 namespace Hæveautomaten.Views
 {
-    internal abstract class AbstractMenuView
+    public class BaseView
     {
+        public string GetUserInput()
+        {
+            return Console.ReadLine() ?? "";
+        }
+
+        public string GetUserInputWithTitle(string message)
+        {
+            Console.WriteLine(message);
+            return GetUserInput();
+        }
+
+        public void CustomOutput(string output, bool clearConsole)
+        {
+            if (clearConsole)
+            {
+                Console.Clear();
+            }
+
+            Console.WriteLine(output);
+        }
+
+        public void CustomMenu(string[] customMenuOptions, string customBackTitle = "Back")
+        {
+            DisplayMenu(customMenuOptions, customBackTitle);
+        }
+
         private protected static void DisplayHeader(string headerTitle)
         {
             int lineLength = headerTitle.Length + 4;

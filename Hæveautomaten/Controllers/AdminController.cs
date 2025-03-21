@@ -1,21 +1,25 @@
 using Hæveautomaten.Views;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 
 namespace Hæveautomaten.Controllers
 {
     public class AdminController : IAdminController
     {
-        private IAccountController _accountController;
-        private IPersonController _personController;
-        private ICreditCardController _creditCardController;
-        private IBankController _bankController;
-        private IAutomatedTellerMachineController _automatedTellerMachineController;
+        private readonly IBaseView _baseView;
+        private readonly IAccountController _accountController;
+        private readonly IPersonController _personController;
+        private readonly ICreditCardController _creditCardController;
+        private readonly IBankController _bankController;
+        private readonly IAutomatedTellerMachineController _automatedTellerMachineController;
 
-        public AdminController(IAccountController accountController,
+        public AdminController(
+            IAccountController accountController,
             IPersonController personController,
             ICreditCardController creditCardController,
             IBankController bankController,
-            IAutomatedTellerMachineController automatedTellerMachineController
+            IAutomatedTellerMachineController automatedTellerMachineController,
+            IBaseView baseView
         )
         {
             _accountController = accountController;
@@ -23,12 +27,13 @@ namespace Hæveautomaten.Controllers
             _creditCardController = creditCardController;
             _bankController = bankController;
             _automatedTellerMachineController = automatedTellerMachineController;
+            _baseView = baseView;
         }
 
         public void HandleAdminMenuDisplay()
         {
             AdminView.AdminMenu();
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
 
             HandleAdminMenuInput(userInput);
         }

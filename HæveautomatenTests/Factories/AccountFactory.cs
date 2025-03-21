@@ -13,7 +13,7 @@ namespace HæveautomatenTests.Factories
         {
             accountOwner ??= PersonFactory.CreatePerson();
             associatedBank ??= BankFactory.CreateBank();
-            creditCards ??= new List<CreditCardEntity>() { CreditCardFactory.CreateCreditCard() };
+            creditCards ??= new List<CreditCardEntity>();
 
             AccountEntity account = new AccountEntity
             (

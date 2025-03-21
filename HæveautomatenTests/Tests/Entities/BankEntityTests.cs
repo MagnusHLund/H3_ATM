@@ -1,6 +1,5 @@
 using Hæveautomaten.Entities;
 using HæveautomatenTests.Factories;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HæveautomatenTests.Tests.Entities
 {
@@ -14,24 +13,10 @@ namespace HæveautomatenTests.Tests.Entities
             string bankName = "Test Bank";
 
             // Act
-            BankEntity bank = BankFactory.CreateBank(bankName);
+            BankEntity bank = new BankEntity(bankName);
 
             // Assert
             Assert.AreEqual(bankName, bank.BankName);
-            Assert.IsNotNull(bank.Accounts);
-            Assert.AreEqual(0, bank.Accounts.Count);
-            Assert.IsNotNull(bank.AutomatedTellerMachines);
-            Assert.AreEqual(0, bank.AutomatedTellerMachines.Count);
-        }
-
-        [TestMethod]
-        public void Constructor_WithDefaultParameters_CreatesBankEntityWithDefaults()
-        {
-            // Act
-            BankEntity bank = BankFactory.CreateBank();
-
-            // Assert
-            Assert.IsNull(bank.BankName);
             Assert.IsNotNull(bank.Accounts);
             Assert.AreEqual(0, bank.Accounts.Count);
             Assert.IsNotNull(bank.AutomatedTellerMachines);
@@ -43,7 +28,7 @@ namespace HæveautomatenTests.Tests.Entities
         {
             // Arrange
             string bankName = "Test Bank";
-            BankEntity bank = BankFactory.CreateBank(bankName);
+            BankEntity bank = new BankEntity(bankName);
 
             // Act
             string result = bank.ToString();
@@ -56,7 +41,8 @@ namespace HæveautomatenTests.Tests.Entities
         public void AccountsProperty_CanAddAccounts()
         {
             // Arrange
-            BankEntity bank = BankFactory.CreateBank();
+            string bankName = "Test Bank";
+            BankEntity bank = new BankEntity(bankName);
             AccountEntity account = AccountFactory.CreateAccount();
 
             // Act
@@ -71,7 +57,8 @@ namespace HæveautomatenTests.Tests.Entities
         public void AutomatedTellerMachinesProperty_CanAddATMs()
         {
             // Arrange
-            BankEntity bank = BankFactory.CreateBank();
+            string bankName = "Test Bank";
+            BankEntity bank = new BankEntity(bankName);
             AutomatedTellerMachineEntity atm = AutomatedTellerMachineFactory.CreateAutomatedTellerMachine();
 
             // Act

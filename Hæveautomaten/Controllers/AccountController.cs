@@ -1,5 +1,5 @@
-using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 
@@ -8,19 +8,26 @@ namespace Hæveautomaten.Controllers
     public class AccountController : IAccountController
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly IBankController _bankController;
         private readonly IPersonController _personController;
+        private readonly IBankController _bankController;
+        private readonly IBaseView _baseView;
 
-        public AccountController(IAccountRepository accountRepository, IBankController bankController, IPersonController personController)
+        public AccountController(
+            IAccountRepository accountRepository,
+            IBankController bankController,
+            IPersonController personController,
+            IBaseView baseView
+        )
         {
             _accountRepository = accountRepository;
             _bankController = bankController;
             _personController = personController;
+            _baseView = baseView;
         }
 
         public bool CreateAccount()
         {
-            long balance = long.Parse(CustomView.GetUserInputWithTitle("Enter balance: "));
+            long balance = long.Parse(_baseView.GetUserInputWithTitle("Enter balance: "));
 
             BankEntity bank = _bankController.SelectBank();
             PersonEntity person = _personController.SelectPerson();
@@ -47,9 +54,9 @@ namespace Hæveautomaten.Controllers
 
             string[] accountValues = accounts.Select(account => account.ToString()).ToArray();
 
-            CustomView.CustomMenu(accountValues);
+            _baseView.CustomMenu(accountValues);
 
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
             int accountIndex = int.Parse(userInput) - 1;
 
             return accounts[accountIndex];

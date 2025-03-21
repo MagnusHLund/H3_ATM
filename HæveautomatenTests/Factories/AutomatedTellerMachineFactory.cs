@@ -11,9 +11,7 @@ namespace HæveautomatenTests.Factories
         {
             associatedBank ??= BankFactory.CreateBank();
 
-            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(minimumExchangeAmount);
-
-            associatedBank.AutomatedTellerMachines.Add(atm);
+            AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(minimumExchangeAmount, associatedBank);
 
             return atm;
         }

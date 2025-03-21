@@ -1,24 +1,29 @@
-using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
+using Hæveautomaten.Interfaces.Views;
 
 namespace Hæveautomaten.Controllers
 {
     public class PersonController : IPersonController
     {
         private readonly IPersonRepository _personRepository;
+        private readonly IBaseView _baseView;
 
-        public PersonController(IPersonRepository personRepository)
+        public PersonController(
+            IPersonRepository personRepository,
+            IBaseView baseView
+        )
         {
             _personRepository = personRepository;
+            _baseView = baseView;
         }
 
         public bool CreatePerson()
         {
-            string firstName = CustomView.GetUserInputWithTitle("Enter the first name: ");
-            string lastName = CustomView.GetUserInputWithTitle("Enter the last name: ");
-            string middleName = CustomView.GetUserInputWithTitle("Enter the middle name: ");
+            string firstName = _baseView.GetUserInputWithTitle("Enter the first name: ");
+            string lastName = _baseView.GetUserInputWithTitle("Enter the last name: ");
+            string middleName = _baseView.GetUserInputWithTitle("Enter the middle name: ");
 
             PersonEntity person = new PersonEntity
             (
@@ -27,9 +32,8 @@ namespace Hæveautomaten.Controllers
                 lastName: lastName
             );
 
-            _personRepository.CreatePerson(person);
-
-            throw new NotImplementedException();
+            bool success = _personRepository.CreatePerson(person);
+            return success;
         }
 
         public bool DeletePerson()
@@ -45,9 +49,9 @@ namespace Hæveautomaten.Controllers
             List<PersonEntity> people = GetAllPeople();
             string[] peopleNames = people.Select(person => person.ToString()).ToArray();
 
-            CustomView.CustomMenu(peopleNames);
+            _baseView.CustomMenu(peopleNames);
 
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
             int personIndex = int.Parse(userInput) - 1;
 
             return people[personIndex];

@@ -1,4 +1,6 @@
 using Moq;
+using Hæveautomaten.Controllers;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 
 namespace HæveautomatenTests.Tests.Controllers
@@ -6,54 +8,62 @@ namespace HæveautomatenTests.Tests.Controllers
     [TestClass]
     public class MainControllerTests
     {
-        private Mock<IMainController> _mainControllerMock;
+        private Mock<IAdminController> _adminControllerMock;
+        private Mock<IAutomatedTellerMachineController> _atmControllerMock;
+        private Mock<IBaseView> _baseViewMock;
+        private MainController _mainController;
 
         [TestInitialize]
         public void Setup()
         {
-            _mainControllerMock = new Mock<IMainController>();
+            _atmControllerMock = new Mock<IAutomatedTellerMachineController>();
+            _adminControllerMock = new Mock<IAdminController>();
+            _baseViewMock = new Mock<IBaseView>();
+
+            _mainController = new MainController(
+                _adminControllerMock.Object,
+                _atmControllerMock.Object,
+                _baseViewMock.Object
+            );
         }
 
         [TestMethod]
         public void HandleMainMenu_WithValidInput_ExecutesCorrectAction()
         {
             // Arrange
-            string input = "1";
-            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
+            string input = "1"; // Simulate valid input for Admin menu
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns(input);
 
             // Act
-            _mainControllerMock.Object.HandleMainMenuInput(input);
+            _mainController.HandleMainMenuDisplay();
 
             // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
+            _adminControllerMock.Verify(admin => admin.HandleAdminMenuDisplay(), Times.Once);
         }
 
         [TestMethod]
-        public void HandleMainMenu_WithInvalidInput_ReturnsToMenu()
+        public void HandleMainMenu_WithATMMenuInput_CallsATMMenu()
         {
             // Arrange
-            string input = "invalid";
-            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
+            string input = "2"; // Simulate valid input for ATM menu
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns(input);
 
             // Act
-            _mainControllerMock.Object.HandleMainMenuInput(input);
+            _mainController.HandleMainMenuDisplay();
 
             // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
+            _atmControllerMock.Verify(atm => atm.HandleAutomatedTellerMachineMenu(), Times.Once);
         }
 
         [TestMethod]
-        public void HandleMainMenu_WithExitInput_ExitsApplication()
+        public void HandleMainMenu_WithInvalidInput_ThrowsInvalidOperationException()
         {
             // Arrange
-            string input = "0";
-            _mainControllerMock.Setup(main => main.HandleMainMenuInput(input));
+            string input = "invalid"; // Simulate invalid input
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns(input);
 
-            // Act
-            _mainControllerMock.Object.HandleMainMenuInput(input);
-
-            // Assert
-            _mainControllerMock.Verify(main => main.HandleMainMenuInput(input), Times.Once);
+            // Act & Assert
+            Assert.ThrowsException<InvalidOperationException>(() => _mainController.HandleMainMenuDisplay());
         }
     }
 }

@@ -1,5 +1,6 @@
-using Hæveautomaten.Views;
 using Hæveautomaten.Interfaces.Controllers;
+using Hæveautomaten.Interfaces.Views;
+using Hæveautomaten.Views;
 
 namespace Hæveautomaten.Controllers
 {
@@ -7,22 +8,25 @@ namespace Hæveautomaten.Controllers
     {
         private readonly IAdminController _adminController;
         private readonly IAutomatedTellerMachineController _automatedTellerMachineController;
+        private readonly IBaseView _baseView;
 
-        public MainController(IAdminController adminController, IAutomatedTellerMachineController automatedTellerMachineController)
+        public MainController(
+            IAdminController adminController,
+            IAutomatedTellerMachineController automatedTellerMachineController,
+            IBaseView baseView
+        )
         {
             _adminController = adminController;
             _automatedTellerMachineController = automatedTellerMachineController;
+            _baseView = baseView;
         }
 
         public void HandleMainMenuDisplay()
         {
-            while (true)
-            {
-                MainView.MainMenu();
+            MainView.MainMenu();
 
-                string input = CustomView.GetUserInput();
-                HandleMainMenuInput(input);
-            }
+            string input = _baseView.GetUserInput();
+            HandleMainMenuInput(input);
         }
 
         public void HandleMainMenuInput(string input)

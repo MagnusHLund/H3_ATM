@@ -1,5 +1,6 @@
 using Hæveautomaten.Views;
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 
@@ -11,12 +12,19 @@ namespace Hæveautomaten.Controllers
         private readonly ICreditCardController _creditCardController;
         private readonly IAccountController _accountController;
         private readonly IBankController _bankController;
+        private readonly IBaseView _baseView;
 
-        public AutomatedTellerMachineController(IAutomatedTellerMachineRepository automatedTellerMachineRepository, IBankController bankController, ICreditCardController creditCardController)
+        public AutomatedTellerMachineController(
+            IAutomatedTellerMachineRepository automatedTellerMachineRepository,
+            IBankController bankController,
+            ICreditCardController creditCardController,
+            IBaseView baseView
+        )
         {
             _automatedTellerMachineRepository = automatedTellerMachineRepository;
             _bankController = bankController;
             _creditCardController = creditCardController;
+            _baseView = baseView;
         }
 
         public void HandleAutomatedTellerMachineMenu()
@@ -45,7 +53,7 @@ namespace Hæveautomaten.Controllers
         public bool CreateAutomatedTellerMachine()
         {
             BankEntity bank = _bankController.SelectBank();
-            uint minimumExchangeAmount = uint.Parse(CustomView.GetUserInputWithTitle("Enter the minimum exchange amount: "));
+            uint minimumExchangeAmount = uint.Parse(_baseView.GetUserInputWithTitle("Enter the minimum exchange amount: "));
 
             AutomatedTellerMachineEntity atm = new AutomatedTellerMachineEntity(
                 bank: bank,
@@ -98,9 +106,9 @@ namespace Hæveautomaten.Controllers
             List<AutomatedTellerMachineEntity> atms = GetAllAutomatedTellerMachines();
             string[] atmIdentifiers = atms.Select(atm => atm.ToString()).ToArray();
 
-            CustomView.CustomMenu(atmIdentifiers);
+            _baseView.CustomMenu(atmIdentifiers);
 
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
             int atmIndex = int.Parse(userInput) - 1;
 
             return atms[atmIndex];

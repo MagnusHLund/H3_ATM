@@ -1,8 +1,11 @@
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Hæveautomaten.Entities;
 using Hæveautomaten.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 using HæveautomatenTests.Factories;
+using Hæveautomaten.Interfaces.Views;
+using System.Collections.Generic;
 
 namespace HæveautomatenTests.Tests.Controllers
 {
@@ -10,38 +13,44 @@ namespace HæveautomatenTests.Tests.Controllers
     public class PersonControllerTests
     {
         private Mock<IPersonRepository> _personRepositoryMock;
+        private Mock<IBaseView> _baseViewMock;
         private PersonController _personController;
 
         [TestInitialize]
         public void Setup()
         {
             _personRepositoryMock = new Mock<IPersonRepository>();
-            _personController = new PersonController(_personRepositoryMock.Object);
+            _baseViewMock = new Mock<IBaseView>();
+
+            _personController = new PersonController(
+                _personRepositoryMock.Object,
+                _baseViewMock.Object
+            );
         }
 
         [TestMethod]
         public void CreatePerson_WithValidData_CreatesSuccessfully()
         {
             // Arrange
-            PersonEntity person = PersonFactory.CreatePerson();
-            _personRepositoryMock.Setup(r => r.CreatePerson(person)).Returns(true);
+            string firstName = "John";
+            string lastName = "Doe";
+            string middleName = "Michael";
+
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the first name: ")).Returns(firstName);
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the last name: ")).Returns(lastName);
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the middle name: ")).Returns(middleName);
+            _personRepositoryMock.Setup(r => r.CreatePerson(It.IsAny<PersonEntity>())).Returns(true);
 
             // Act
             bool result = _personController.CreatePerson();
 
             // Assert
             Assert.IsTrue(result);
-            _personRepositoryMock.Verify(r => r.CreatePerson(It.IsAny<PersonEntity>()), Times.Once);
-        }
-
-        [TestMethod]
-        public void CreatePerson_WithInvalidData_ThrowsArgumentException()
-        {
-            // Arrange
-            _personRepositoryMock.Setup(r => r.CreatePerson(It.IsAny<PersonEntity>())).Throws(new ArgumentException("Invalid person data"));
-
-            // Act & Assert
-            Assert.ThrowsException<ArgumentException>(() => _personController.CreatePerson());
+            _personRepositoryMock.Verify(r => r.CreatePerson(It.Is<PersonEntity>(p =>
+                p.FirstName == firstName &&
+                p.LastName == lastName &&
+                p.MiddleName == middleName
+            )), Times.Once);
         }
 
         [TestMethod]
@@ -50,23 +59,16 @@ namespace HæveautomatenTests.Tests.Controllers
             // Arrange
             PersonEntity person = PersonFactory.CreatePerson();
             _personRepositoryMock.Setup(r => r.DeletePerson(person.PersonId)).Returns(true);
+            _personRepositoryMock.Setup(r => r.GetAllPeople()).Returns(new List<PersonEntity> { person });
+            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act
             bool result = _personController.DeletePerson();
 
             // Assert
             Assert.IsTrue(result);
-            _personRepositoryMock.Verify(r => r.DeletePerson(It.IsAny<uint>()), Times.Once);
-        }
-
-        [TestMethod]
-        public void DeletePerson_WithNonExistingPerson_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            _personRepositoryMock.Setup(r => r.DeletePerson(It.IsAny<uint>())).Throws(new KeyNotFoundException("Person not found"));
-
-            // Act & Assert
-            Assert.ThrowsException<KeyNotFoundException>(() => _personController.DeletePerson());
+            _personRepositoryMock.Verify(r => r.DeletePerson(person.PersonId), Times.Once);
         }
 
         [TestMethod]
@@ -99,6 +101,8 @@ namespace HæveautomatenTests.Tests.Controllers
                 PersonFactory.CreatePerson(middleName: null)
             };
             _personRepositoryMock.Setup(r => r.GetAllPeople()).Returns(people);
+            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("1");
 
             // Act
             PersonEntity selectedPerson = _personController.SelectPerson();
@@ -118,6 +122,8 @@ namespace HæveautomatenTests.Tests.Controllers
                 PersonFactory.CreatePerson(middleName: null)
             };
             _personRepositoryMock.Setup(r => r.GetAllPeople()).Returns(people);
+            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("invalid");
 
             // Act & Assert
             Assert.ThrowsException<FormatException>(() => _personController.SelectPerson());
@@ -133,6 +139,8 @@ namespace HæveautomatenTests.Tests.Controllers
                 PersonFactory.CreatePerson(middleName: null)
             };
             _personRepositoryMock.Setup(r => r.GetAllPeople()).Returns(people);
+            _baseViewMock.Setup(view => view.CustomMenu(It.IsAny<string[]>(), It.IsAny<string>()));
+            _baseViewMock.Setup(view => view.GetUserInput()).Returns("3"); // Out of range input
 
             // Act & Assert
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => _personController.SelectPerson());

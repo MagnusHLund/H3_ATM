@@ -1,5 +1,6 @@
-using Hæveautomaten.Views;
+
 using Hæveautomaten.Entities;
+using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 
@@ -10,12 +11,19 @@ namespace Hæveautomaten.Controllers
         private readonly ICreditCardRepository _creditCardRepository;
         private readonly IPersonController _personController;
         private readonly IAccountController _accountController;
+        private readonly IBaseView _baseView;
 
-        public CreditCardController(ICreditCardRepository creditCardRepository, IPersonController personController, IAccountController accountController)
+        public CreditCardController(
+            ICreditCardRepository creditCardRepository,
+            IPersonController personController,
+            IAccountController accountController,
+            IBaseView baseView
+        )
         {
             _creditCardRepository = creditCardRepository;
             _personController = personController;
             _accountController = accountController;
+            _baseView = baseView;
         }
 
         public bool CreateCreditCard()
@@ -26,11 +34,13 @@ namespace Hæveautomaten.Controllers
             List<AccountEntity> accountsByPerson = _accountController.GetAccountsByPerson(cardOwner);
             AccountEntity associatedAccount = _accountController.SelectAccount(accountsByPerson);
 
-            ulong cardNumber = ulong.Parse(CustomView.GetUserInputWithTitle("Enter the card number: "));
-            DateTime expirationDate = DateTime.Parse(CustomView.GetUserInputWithTitle("Enter the expiration date (MM/YY): "));
-            ushort cvv = ushort.Parse(CustomView.GetUserInputWithTitle("Enter the CVV: "));
-            ushort pinCode = ushort.Parse(CustomView.GetUserInputWithTitle("Enter the pin code: "));
-            bool isBlocked = CustomView.GetUserInputWithTitle("Is the card blocked? (true/false): ") == "true";
+            ulong cardNumber = ulong.Parse(_baseView.GetUserInputWithTitle("Enter the card number: "));
+            string stringExpirationDate = _baseView.GetUserInputWithTitle("Enter the expiration date (MM/YY): ");
+            ushort cvv = ushort.Parse(_baseView.GetUserInputWithTitle("Enter the CVV: "));
+            ushort pinCode = ushort.Parse(_baseView.GetUserInputWithTitle("Enter the pin code: "));
+            bool isBlocked = _baseView.GetUserInputWithTitle("Is the card blocked? (true/false): ") == "true";
+
+            DateTime expirationDate = ConvertStringToDateTime(stringExpirationDate);
 
             CreditCardEntity creditCard = new CreditCardEntity(
                 cardHolderName: cardHolderName,
@@ -59,9 +69,9 @@ namespace Hæveautomaten.Controllers
             List<CreditCardEntity> creditCards = GetAllCreditCards();
             string[] CreditCardIdentifiers = creditCards.Select(creditCard => creditCard.ToString()).ToArray();
 
-            CustomView.CustomMenu(CreditCardIdentifiers);
+            _baseView.CustomMenu(CreditCardIdentifiers);
 
-            string userInput = CustomView.GetUserInput();
+            string userInput = _baseView.GetUserInput();
             int creditCardIndex = int.Parse(userInput) - 1;
 
             return creditCards[creditCardIndex];
@@ -83,6 +93,15 @@ namespace Hæveautomaten.Controllers
             // Check if the associated account number is valid
 
             throw new NotImplementedException();
+        }
+
+        public DateTime ConvertStringToDateTime(string expirationDate)
+        {
+            string[] dateParts = expirationDate.Split('/');
+            int month = int.Parse(dateParts[0]);
+            int year = int.Parse(dateParts[1]) + 2000;
+
+            return new DateTime(year, month, 1);
         }
     }
 }

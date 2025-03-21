@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using Hæveautomaten.Views;
 
 namespace Hæveautomaten
 {
@@ -25,6 +26,7 @@ namespace Hæveautomaten
         {
             ServiceCollection serviceCollection = new ServiceCollection();
 
+            serviceCollection.AddSingleton<MainView, MainView>();
             serviceCollection.AddSingleton<IMainController, MainController>();
             serviceCollection.AddSingleton<IBankController, BankController>();
             serviceCollection.AddSingleton<IAdminController, AdminController>();

@@ -1,6 +1,6 @@
 namespace Hæveautomaten.Views
 {
-    internal class MainView : AbstractMenuView
+    internal class MainView : BaseView
     {
         internal static void MainMenu()
         {

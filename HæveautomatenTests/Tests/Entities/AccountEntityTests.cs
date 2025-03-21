@@ -19,9 +19,9 @@ namespace HæveautomatenTests.Tests.Entities
             };
 
             // Act
-            AccountEntity account = AccountFactory.CreateAccount(
+            AccountEntity account = new AccountEntity(
                 balanceInMinorUnits: balanceInMinorUnits,
-                associatedBank: bank,
+                bank: bank,
                 accountOwner: accountOwner,
                 creditCards: creditCards
             );
@@ -34,25 +34,11 @@ namespace HæveautomatenTests.Tests.Entities
         }
 
         [TestMethod]
-        public void Constructor_WithDefaultParameters_CreatesAccountEntityWithDefaults()
-        {
-            // Act
-            AccountEntity account = AccountFactory.CreateAccount();
-
-            // Assert
-            Assert.AreEqual(0, account.BalanceInMinorUnits);
-            Assert.IsNull(account.Bank);
-            Assert.IsNull(account.AccountOwner);
-            Assert.IsNotNull(account.CreditCards);
-            Assert.AreEqual(0, account.CreditCards.Count);
-        }
-
-        [TestMethod]
         public void ToString_ReturnsCorrectStringRepresentation()
         {
             // Arrange
             long balanceInMinorUnits = 10000;
-            AccountEntity account = AccountFactory.CreateAccount(balanceInMinorUnits: balanceInMinorUnits);
+            AccountEntity account = new AccountEntity(balanceInMinorUnits: balanceInMinorUnits);
 
             // Act
             string result = account.ToString();

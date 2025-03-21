@@ -1,6 +1,6 @@
 namespace Hæveautomaten.Views
 {
-    internal class AutomatedTellerMachineView : AbstractMenuView
+    internal class AutomatedTellerMachineView : BaseView
     {
         internal static void AutomatedTellerMachineMainMenu(string bankName)
         {
