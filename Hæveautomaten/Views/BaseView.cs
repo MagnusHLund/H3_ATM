@@ -1,6 +1,8 @@
+using Hæveautomaten.Interfaces.Views;
+
 namespace Hæveautomaten.Views
 {
-    public class BaseView
+    public class BaseView : IBaseView
     {
         public string GetUserInput()
         {
@@ -28,7 +30,7 @@ namespace Hæveautomaten.Views
             DisplayMenu(customMenuOptions, customBackTitle);
         }
 
-        private protected static void DisplayHeader(string headerTitle)
+        public static void DisplayHeader(string headerTitle)
         {
             int lineLength = headerTitle.Length + 4;
             string border = new string('=', lineLength);

@@ -2,6 +2,7 @@ using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
+using Hæveautomaten.Views;
 
 namespace Hæveautomaten.Controllers
 {
@@ -27,9 +28,12 @@ namespace Hæveautomaten.Controllers
 
         public bool CreateAccount()
         {
-            long balance = long.Parse(_baseView.GetUserInputWithTitle("Enter balance: "));
+            long balance = long.Parse(_baseView.GetUserInputWithTitle("Enter balance:"));
 
+            BaseView.DisplayHeader("Select bank:");
             BankEntity bank = _bankController.SelectBank();
+
+            BaseView.DisplayHeader("Select person:");
             PersonEntity person = _personController.SelectPerson();
 
             AccountEntity account = new AccountEntity(

@@ -24,7 +24,7 @@ namespace Hæveautomaten.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating account: {ex.Message}");
+                Console.WriteLine($"Error creating account: {ex.InnerException.Message}");
                 return false;
             }
         }
