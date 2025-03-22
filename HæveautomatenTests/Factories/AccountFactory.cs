@@ -1,9 +1,15 @@
 using Hæveautomaten.Entities;
+using HæveautomatenTests.Utils;
 
 namespace HæveautomatenTests.Factories
 {
     internal static class AccountFactory
     {
+        internal static AccountEntity CreateAccount()
+        {
+            return TestDataGeneratorUtils.AccountFaker.Generate();
+        }
+
         internal static AccountEntity CreateAccount(
             PersonEntity accountOwner = null,
             BankEntity associatedBank = null,
@@ -26,6 +32,11 @@ namespace HæveautomatenTests.Factories
             associatedBank.Accounts.Add(account);
 
             return account;
+        }
+
+        internal static List<AccountEntity> CreateAccounts(int numberOfAccounts = 3)
+        {
+            return TestDataGeneratorUtils.AccountFaker.Generate(numberOfAccounts);
         }
 
         internal static List<AccountEntity> CreateAccounts(

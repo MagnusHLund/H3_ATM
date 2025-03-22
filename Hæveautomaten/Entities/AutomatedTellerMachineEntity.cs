@@ -24,7 +24,7 @@ namespace Hæveautomaten.Entities
             Bank = bank;
         }
 
-        private AutomatedTellerMachineEntity() { }
+        public AutomatedTellerMachineEntity() { }
 
         public override string ToString()
         {

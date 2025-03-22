@@ -56,6 +56,8 @@ namespace HæveautomatenTests.Tests.Features
             // Arrange
             long balance = 5000;
 
+            PersonEntity accountOwner = _personRepository.GetAllPeople()[0];
+
             _baseView.SetUserInputs(new List<string>
             {
                 "1", // Navigate to Admin Menu
@@ -71,7 +73,7 @@ namespace HæveautomatenTests.Tests.Features
             // Assert
             List<AccountEntity> accounts = _accountRepository.GetAllAccounts();
             Assert.AreEqual(1, accounts.Count);
-            Assert.AreEqual("John James Doe", accounts[0].AccountOwner.ToString());
+            Assert.AreEqual(accountOwner.ToString(), accounts[0].AccountOwner.ToString());
             Assert.AreEqual(balance, accounts[0].BalanceInMinorUnits);
         }
 

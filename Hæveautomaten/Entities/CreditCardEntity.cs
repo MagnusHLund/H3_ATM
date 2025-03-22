@@ -8,7 +8,7 @@ namespace Hæveautomaten.Entities
         public int CreditCardId { get; set; }
 
         [Required]
-        public ulong CardNumber { get; set; }
+        public string CardNumber { get; set; }
 
         [Required]
         public string CardHolderName { get; set; }
@@ -27,7 +27,7 @@ namespace Hæveautomaten.Entities
         // Navigation property 
         public AccountEntity Account { get; set; }
 
-        public CreditCardEntity(ulong cardNumber, string cardHolderName, ushort cvv, DateTime expirationDate, ushort pinCode, bool isBlocked, AccountEntity account)
+        public CreditCardEntity(string cardNumber, string cardHolderName, ushort cvv, DateTime expirationDate, ushort pinCode, bool isBlocked, AccountEntity account)
         {
             CardNumber = cardNumber;
             CardHolderName = cardHolderName;
@@ -38,7 +38,7 @@ namespace Hæveautomaten.Entities
             Account = account;
         }
 
-        private CreditCardEntity() { }
+        public CreditCardEntity() { }
 
         public override string ToString()
         {

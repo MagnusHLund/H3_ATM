@@ -40,7 +40,7 @@ namespace HæveautomatenTests.Tests.Controllers
             // Arrange
             PersonEntity person = PersonFactory.CreatePerson();
             AccountEntity account = AccountFactory.CreateAccount(person);
-            ulong cardNumber = 1234123412341234;
+            string cardNumber = "1234123412341234";
             DateTime expirationDate = DateTime.Now.AddYears(3);
             ushort cvv = 123;
             ushort pinCode = 1234;
@@ -51,7 +51,7 @@ namespace HæveautomatenTests.Tests.Controllers
             _personControllerMock.Setup(p => p.SelectPerson()).Returns(person);
             _accountControllerMock.Setup(a => a.GetAccountsByPerson(person)).Returns(new List<AccountEntity> { account });
             _accountControllerMock.Setup(a => a.SelectAccount(It.IsAny<List<AccountEntity>>())).Returns(account);
-            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the card number: ")).Returns(cardNumber.ToString());
+            _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the card number: ")).Returns(cardNumber);
             _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the expiration date (MM/YY): ")).Returns(expectedExpirationDateString);
             _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the CVV: ")).Returns(cvv.ToString());
             _baseViewMock.Setup(view => view.GetUserInputWithTitle("Enter the pin code: ")).Returns(pinCode.ToString());

@@ -2,6 +2,7 @@ using Hæveautomaten.Entities;
 using Hæveautomaten.Interfaces.Views;
 using Hæveautomaten.Interfaces.Controllers;
 using Hæveautomaten.Interfaces.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace Hæveautomaten.Controllers
 {
@@ -33,7 +34,7 @@ namespace Hæveautomaten.Controllers
             List<AccountEntity> accountsByPerson = _accountController.GetAccountsByPerson(cardOwner);
             AccountEntity associatedAccount = _accountController.SelectAccount(accountsByPerson);
 
-            ulong cardNumber = ulong.Parse(_baseView.GetUserInputWithTitle("Enter the card number: "));
+            string cardNumber = _baseView.GetUserInputWithTitle("Enter the card number: ");
             string stringExpirationDate = _baseView.GetUserInputWithTitle("Enter the expiration date (MM/YY): ");
             ushort cvv = ushort.Parse(_baseView.GetUserInputWithTitle("Enter the CVV: "));
             ushort pinCode = ushort.Parse(_baseView.GetUserInputWithTitle("Enter the pin code: "));
@@ -53,8 +54,7 @@ namespace Hæveautomaten.Controllers
 
             if (!IsCreditCardValid(creditCard))
             {
-                _baseView.CustomOutput("Invalid credit card details!");
-                return false;
+                throw new ValidationException("Invalid credit card information!");
             }
 
             bool success = _creditCardRepository.CreateCreditCard(creditCard);
@@ -95,7 +95,7 @@ namespace Hæveautomaten.Controllers
                 return false;
             }
 
-            if (creditCard.CardNumber.ToString().Length != 16)
+            if (creditCard.CardNumber.Length != 16 || long.Parse(creditCard.CardNumber) < 0)
             {
                 return false;
             }

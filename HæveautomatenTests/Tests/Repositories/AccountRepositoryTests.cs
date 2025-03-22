@@ -82,7 +82,7 @@ namespace HæveautomatenTests.Tests.Repositories
         public void GetAllAccounts_ReturnsAllAccounts()
         {
             // Arrange
-            List<AccountEntity> accounts = AccountFactory.CreateAccounts();
+            List<AccountEntity> accounts = AccountFactory.CreateAccounts(numberOfAccounts: 3);
             _dbContext.Accounts.AddRange(accounts);
             _dbContext.SaveChanges();
 

@@ -29,7 +29,7 @@ namespace Hæveautomaten.Entities
             AccountOwner = accountOwner;
         }
 
-        private AccountEntity() { }
+        public AccountEntity() { }
 
         public override string ToString()
         {

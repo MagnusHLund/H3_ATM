@@ -120,7 +120,7 @@ namespace HæveautomatenTests.Tests.Controllers
         public void GetAllAccounts_WhenCalled_ReturnsAllAccounts()
         {
             // Arrange
-            List<AccountEntity> accounts = AccountFactory.CreateAccounts();
+            List<AccountEntity> accounts = AccountFactory.CreateAccounts(numberOfAccounts: 3);
             _mockAccountRepository.Setup(r => r.GetAllAccounts()).Returns(accounts);
 
             // Act

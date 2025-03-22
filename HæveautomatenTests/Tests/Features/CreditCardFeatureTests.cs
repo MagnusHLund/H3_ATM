@@ -3,6 +3,7 @@ using HæveautomatenTests.Views;
 using Hæveautomaten.Controllers;
 using HæveautomatenTests.Factories;
 using HæveautomatenTests.Repositories;
+using System.ComponentModel.DataAnnotations;
 
 namespace HæveautomatenTests.Tests.Features
 {
@@ -56,7 +57,7 @@ namespace HæveautomatenTests.Tests.Features
         public void CreateCreditCardThroughMainMenu_FeatureTest()
         {
             // Arrange
-            ulong cardNumber = 1234123412341234;
+            string cardNumber = "1234123412341234";
             string expirationDate = "12/25";
             ushort cvv = 123;
             ushort pinCode = 1234;
@@ -68,7 +69,7 @@ namespace HæveautomatenTests.Tests.Features
                 "3", // Create Credit Card
                 "1", // Select person
                 "1", // Select account
-                cardNumber.ToString(), // Card number
+                cardNumber, // Card number
                 expirationDate, // Expiration date
                 cvv.ToString(), // CVV
                 pinCode.ToString(), // Pin code
@@ -129,7 +130,7 @@ namespace HæveautomatenTests.Tests.Features
             });
 
             // Act & Assert
-            Assert.ThrowsException<FormatException>(() => _mainController.HandleMainMenuDisplay());
+            Assert.ThrowsException<ValidationException>(() => _mainController.HandleMainMenuDisplay());
         }
 
         [TestMethod]
@@ -151,19 +152,15 @@ namespace HæveautomatenTests.Tests.Features
                 "false" // Is blocked
             });
 
-            // Act
-            _mainController.HandleMainMenuDisplay();
-
-            // Assert
-            List<CreditCardEntity> creditCards = _creditCardRepository.GetAllCreditCards();
-            Assert.AreEqual(0, creditCards.Count);
+            // Act & Assert
+            Assert.ThrowsException<ValidationException>(() => _mainController.HandleMainMenuDisplay());
         }
 
         [TestMethod]
         public void CreateCreditCardWithBlockedStatus_FeatureTest()
         {
             // Arrange
-            ulong cardNumber = 1234123412341234;
+            string cardNumber = "1234123412341234";
             string expirationDate = "12/25";
             ushort cvv = 123;
             ushort pinCode = 1234;
@@ -175,7 +172,7 @@ namespace HæveautomatenTests.Tests.Features
                 "3", // Create Credit Card
                 "1", // Select person
                 "1", // Select account
-                cardNumber.ToString(), // Card number
+                cardNumber, // Card number
                 expirationDate, // Expiration date
                 cvv.ToString(), // CVV
                 pinCode.ToString(), // Pin code

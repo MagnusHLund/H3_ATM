@@ -25,7 +25,7 @@ namespace Hæveautomaten.Entities
             LastName = lastName;
         }
 
-        private PersonEntity() { }
+        public PersonEntity() { }
 
         public override string ToString()
         {

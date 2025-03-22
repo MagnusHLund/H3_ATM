@@ -10,7 +10,7 @@ namespace HæveautomatenTests.Tests.Entities
         public void Constructor_WithValidParameters_CreatesCreditCardEntity()
         {
             // Arrange
-            ulong cardNumber = 1234123412341234;
+            string cardNumber = "1234123412341234";
             string cardHolderName = "John Doe";
             ushort cvv = 123;
             DateTime expirationDate = DateTime.Now.AddYears(3);
@@ -43,7 +43,7 @@ namespace HæveautomatenTests.Tests.Entities
         public void ToString_ReturnsCorrectStringRepresentation()
         {
             // Arrange
-            ulong cardNumber = 1234123412341234;
+            string cardNumber = "1234123412341234";
             string cardHolderName = "John Doe";
             CreditCardEntity creditCard = CreditCardFactory.CreateCreditCard(
                 cardNumber: cardNumber,

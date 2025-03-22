@@ -1,13 +1,19 @@
 using Hæveautomaten.Entities;
+using HæveautomatenTests.Utils;
 
 namespace HæveautomatenTests.Factories
 {
     internal static class CreditCardFactory
     {
+        internal static CreditCardEntity CreateCreditCard()
+        {
+            return TestDataGeneratorUtils.CreditCardFaker.Generate();
+        }
+
         internal static CreditCardEntity CreateCreditCard(
             PersonEntity cardHolder = null,
             AccountEntity associatedAccount = null,
-            ulong cardNumber = 1234123412341234,
+            string cardNumber = "1234123412341234",
             DateTime? expirationDate = null,
             ushort cvv = 123,
             ushort pinCode = 1234,
