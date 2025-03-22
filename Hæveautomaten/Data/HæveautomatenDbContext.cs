@@ -56,6 +56,10 @@ namespace Hæveautomaten.Data
                 .HasKey(b => b.BankId);
 
             modelBuilder.Entity<BankEntity>()
+                .HasIndex(b => b.BankName)
+                .IsUnique();
+
+            modelBuilder.Entity<BankEntity>()
                 .HasMany(b => b.Accounts)
                 .WithOne(a => a.Bank)
                 .HasForeignKey("BankId")

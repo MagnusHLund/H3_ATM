@@ -51,6 +51,12 @@ namespace Hæveautomaten.Controllers
                 account: associatedAccount
             );
 
+            if (!IsCreditCardValid(creditCard))
+            {
+                _baseView.CustomOutput("Invalid credit card details!");
+                return false;
+            }
+
             bool success = _creditCardRepository.CreateCreditCard(creditCard);
             return success;
         }
@@ -84,14 +90,37 @@ namespace Hæveautomaten.Controllers
 
         public bool IsCreditCardValid(CreditCardEntity creditCard)
         {
-            // Check if the credit card is blocked
-            // Check if the credit card number is valid, using Luhn's algorithm
-            // Check if the expiration date is valid
-            // Check if the cvv is valid
-            // Check if the pin code is valid
-            // Check if the associated account number is valid
+            if (creditCard == null)
+            {
+                return false;
+            }
 
-            throw new NotImplementedException();
+            if (creditCard.CardNumber.ToString().Length != 16)
+            {
+                return false;
+            }
+
+            if (creditCard.ExpirationDate < DateTime.Now)
+            {
+                return false;
+            }
+
+            if (creditCard.Cvv < 100 || creditCard.Cvv > 9999)
+            {
+                return false;
+            }
+
+            if (creditCard.PinCode < 1000 || creditCard.PinCode > 9999)
+            {
+                return false;
+            }
+
+            if (creditCard.Account == null)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public DateTime ConvertStringToDateTime(string expirationDate)

@@ -3,3 +3,4 @@
 **.vs/
 **/migrations/** 
 **/appsettings.json
+**/data/atm.db**
