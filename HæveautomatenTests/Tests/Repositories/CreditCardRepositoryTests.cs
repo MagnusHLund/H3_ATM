@@ -16,7 +16,7 @@ namespace HæveautomatenTests.Tests.Repositories
         public void Setup()
         {
             var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             _dbContext = new HæveautomatenDbContext(options);
@@ -75,7 +75,7 @@ namespace HæveautomatenTests.Tests.Repositories
         }
 
         [TestMethod]
-        public void GetAllCreditCards_ReturnsAllCreditCards()
+        public void GetAllCreditCards_WithValidParameters_ReturnsAllCreditCards()
         {
             // Arrange
             List<CreditCardEntity> creditCards = new List<CreditCardEntity>

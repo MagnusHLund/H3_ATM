@@ -3,10 +3,6 @@ using Hæveautomaten.Entities;
 using Hæveautomaten.Repositories;
 using HæveautomatenTests.Factories;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Data;
 
 namespace HæveautomatenTests.Tests.Repositories
 {
@@ -20,7 +16,7 @@ namespace HæveautomatenTests.Tests.Repositories
         public void Setup()
         {
             var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             _dbContext = new HæveautomatenDbContext(options);

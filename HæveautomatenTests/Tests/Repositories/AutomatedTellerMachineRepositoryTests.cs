@@ -17,7 +17,7 @@ namespace HæveautomatenTests.Tests.Repositories
         public void Setup()
         {
             var options = new DbContextOptionsBuilder<HæveautomatenDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDatabase")
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             _dbContext = new HæveautomatenDbContext(options);
